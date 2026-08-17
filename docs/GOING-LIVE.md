@@ -74,8 +74,42 @@ VITE_SHOPIFY_STOREFRONT_TOKEN=your32charhextoken
 VITE_SHOPIFY_VARIANT_RALLY=gid://shopify/ProductVariant/000000000000
 ```
 
-`VITE_SHOPIFY_DOMAIN` is the **`.myshopify.com`** domain from your admin URL, not
-your custom domain, even after you connect one.
+### Finding `VITE_SHOPIFY_DOMAIN`
+
+**This is not a domain you buy.** Every Shopify store is issued a permanent
+`.myshopify.com` address when it's created. It exists whether or not you own a
+custom domain, it can't be removed, and customers never see it.
+
+Look at your Shopify admin URL:
+
+```
+admin.shopify.com/store/karoomoto-xyz
+                        ^^^^^^^^^^^^^ this part
+```
+
+So the value is `karoomoto-xyz.myshopify.com`. You'll also find it under
+**Settings → Domains**, listed as the one you can't delete.
+
+Use this even after you connect a custom domain — it stays the API address
+permanently.
+
+### The two domains do different jobs
+
+This trips people up, so to be explicit:
+
+| Domain | Points at | Who sees it |
+| --- | --- | --- |
+| `you.myshopify.com` | Shopify's servers | Nobody. It's the API address this site calls behind the scenes. |
+| Your **GoDaddy** domain | Your **web host** (Vercel/Netlify) | Customers. This is the address they type. |
+
+**Your GoDaddy domain does not point at Shopify.** In this setup Shopify is the
+commerce backend, not the website host — so the domain points at whoever serves
+the site, and Shopify only appears at the final checkout step. Section 2 covers
+that DNS setup.
+
+You do *not* need to buy a domain from Shopify, transfer your GoDaddy domain to
+Shopify, or connect the domain inside Shopify at all — with one optional
+exception in 2.4, if you want the checkout page on a `shop.` subdomain.
 
 To find the variant ID, run:
 

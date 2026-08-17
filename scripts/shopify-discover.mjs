@@ -35,11 +35,20 @@ const die = (msg) => {
 }
 
 if (!domain) {
-  die(
-    'VITE_SHOPIFY_DOMAIN is not set in .env.local.\n' +
-      'It is the *.myshopify.com admin domain, e.g. karoomoto.myshopify.com —\n' +
-      'not a custom storefront domain.',
-  )
+  die(`VITE_SHOPIFY_DOMAIN is not set in .env.local.
+
+This is NOT a domain you buy. Every Shopify store is issued a permanent
+*.myshopify.com address when it is created, whether or not you own a custom
+domain, and customers never see it. Find it in your admin URL:
+
+    admin.shopify.com/store/YOUR-STORE
+                            ^^^^^^^^^^ this part
+
+so the value is YOUR-STORE.myshopify.com. It is also listed under
+Settings > Domains as the one you cannot remove.
+
+A domain bought from GoDaddy points at your WEB HOST, not at Shopify, and is
+not what goes here. See docs/GOING-LIVE.md section 1.4.`)
 }
 if (!token) die('VITE_SHOPIFY_STOREFRONT_TOKEN is not set in .env.local.')
 
