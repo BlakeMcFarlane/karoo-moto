@@ -272,7 +272,19 @@ Ask and I'll add both. Vercel is genuinely less work.
 ```bash
 npm install
 npm run dev               # http://localhost:5173/
-npm run build             # typecheck + production build
-npm test                  # nav-overlap + bike-compatibility suites
+npm run build             # type-check + production build
+npm run preview           # serve the production build locally
+npm run lint              # type-check only
+
+npm test                  # both browser suites (dev server must be running)
+npm run test:chrome       # 49 route x viewport fixed-chrome overlap checks
+npm run test:fitment      # 107 bike-compatibility assertions
+
+npm run check             # static QA on tokens, classes and font weights
+npm run shoot             # screenshot 7 viewports, report overflow
+
 npm run shopify:discover  # verify Shopify connection, find variant IDs
 ```
+
+The full command reference, including the `shoot` flags, is in the
+[README](../README.md#commands).
