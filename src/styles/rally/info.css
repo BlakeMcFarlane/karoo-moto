@@ -1,0 +1,123 @@
+/* ==========================================================================
+   Important information — the disclosure.
+
+   Section 11 sits between the bone Trust block and the full-bleed brand
+   moment, so it is built from three things only: a hairline, a small mono
+   label and a short measure of body copy. It is designed to be the lowest
+   note on the page without ever being the sloppiest — so the copy keeps a
+   readable size and --rt-text-2 contrast, and the policy links stay ember.
+   ========================================================================== */
+
+.rt-info {
+  background: var(--rt-ink);
+}
+
+/* Hairline across the top: it closes the commercial half of the page off and
+   gives the closing brand moment a clean edge to start from. Aligned to the
+   text block rather than full-bleed so it reads as typography, not chrome. */
+.rt-info__rule {
+  background: var(--rt-line-2);
+}
+
+.rt-info__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 9.5rem) minmax(0, 1fr);
+  column-gap: clamp(24px, 4vw, 56px);
+  row-gap: clamp(16px, 2.2vw, 24px);
+  margin-top: var(--rt-block);
+}
+
+/* Eyebrow-scale, not display-scale — the h2 is here for the heading outline,
+   not for attention. The 3px lifts the mono cap-height onto the first body
+   line. */
+.rt-info__title {
+  margin: 0;
+  padding-top: 3px;
+  color: var(--rt-text);
+  letter-spacing: 0.2em;
+  line-height: 1.6;
+}
+
+.rt-info__body {
+  max-width: var(--rt-maxw-text);
+}
+
+/* Small, but generously leaded: this is the one block on the page people read
+   word for word rather than scan. */
+.rt-info__para {
+  font-size: var(--rt-fs-small);
+  line-height: 1.8;
+}
+
+.rt-info__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 14px;
+  row-gap: 0;
+  margin: clamp(18px, 2.4vw, 28px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rt-info__links-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* The divider trails its own link, so a wrapped row never starts with one. */
+.rt-info__links-item:not(:last-child)::after {
+  content: '';
+  width: 1px;
+  height: 14px;
+  background: var(--rt-line-2);
+}
+
+/* These are the only clickable things in the section, so they keep the full
+   ember .rt-link treatment. Vertical padding takes the hit area to ~44px; the
+   underline is pulled back onto the text so it still reads as a link. */
+.rt-info__link {
+  padding-block: 12px;
+}
+
+.rt-info__link::after {
+  bottom: 12px;
+}
+
+@media (max-width: 768px) {
+  .rt-info__grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: clamp(12px, 3vw, 18px);
+  }
+
+  .rt-info__title {
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  /* Long mono labels wrap on a phone, and vertical dividers between wrapped
+     labels go ragged — so the row becomes a stack with hairline separators. */
+  .rt-info__links {
+    flex-direction: column;
+    align-items: stretch;
+    column-gap: 0;
+  }
+
+  .rt-info__links-item {
+    display: flex;
+  }
+
+  .rt-info__links-item:not(:last-child)::after {
+    display: none;
+  }
+
+  .rt-info__links-item + .rt-info__links-item {
+    border-top: 1px solid var(--rt-line);
+  }
+
+  .rt-info__link {
+    letter-spacing: 0.12em;
+  }
+}

@@ -1,0 +1,498 @@
+/* ==========================================================================
+   Site navigation — the one header every route shares
+
+   On the landing page: transparent chrome over the hero, an ink plate with a
+   hairline edge once the customer is into the page, plus the section rail and
+   the scroll-progress hairline. On every other route there is no hero behind
+   it, so `.rt-nav--plain` is opaque from the first frame and the rail carries
+   route links instead. Everything here is one pixel thick on purpose: the
+   nav's only job is to stay out of the way of the tower.
+   ========================================================================== */
+
+.rt-nav {
+  /* Written per frame by the nav's scroll driver — 0 at the top of the
+     document, 1 at the bottom. Only the progress bar reads it. */
+  --rt-nav-p: 0;
+  /* Overlay stagger. Not a page-wide token: the only staggered thing here is
+     the mobile menu, and <Reveal> takes its delays in ms for the same reason. */
+  --rt-nav-stagger: 60ms;
+
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: var(--rt-z-nav);
+  height: var(--rt-header-h);
+  color: var(--rt-text);
+  background-color: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background-color var(--rt-t-med) var(--rt-ease-out),
+    border-color var(--rt-t-med) var(--rt-ease-out);
+}
+
+/* Scrim so the wordmark survives the brightest part of the sunset behind it.
+   Fades out entirely once the nav gains its own plate. */
+.rt-nav::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: -1;
+  height: calc(var(--rt-header-h) * 1.9);
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--rt-ink) 58%, transparent),
+    transparent
+  );
+  transition: opacity var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-nav.is-solid {
+  background-color: var(--rt-glass-bg);
+  border-bottom-color: var(--rt-line);
+  backdrop-filter: var(--rt-glass-blur);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .rt-nav.is-solid {
+    background-color: var(--rt-ink);
+  }
+}
+
+/* Off the landing page. There is no hero to sit over, so the plate is painted
+   on the first frame rather than transitioned in: arriving on /product and
+   watching the chrome fade up behind the content reads as a glitch. */
+.rt-nav--plain {
+  transition: none;
+}
+
+.rt-nav--plain::before {
+  display: none;
+}
+
+.rt-nav.is-solid::before {
+  opacity: 0;
+}
+
+.rt-nav__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(12px, 2vw, 32px);
+  height: 100%;
+}
+
+/* --- Brand ---------------------------------------------------------------- */
+
+.rt-nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.rt-nav__home {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The badge asset is square with dark corners — it must be clipped. */
+.rt-nav__badge {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  clip-path: circle(49.5% at 50% 50%);
+  transition: transform var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-nav__home:hover .rt-nav__badge {
+  transform: rotate(-6deg);
+}
+
+.rt-nav__wordmark {
+  font-family: var(--rt-display);
+  font-weight: 700;
+  font-size: var(--rt-fs-h4);
+  line-height: 1;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.rt-nav__hairline {
+  width: 1px;
+  height: 20px;
+  flex-shrink: 0;
+  background: var(--rt-line-2);
+}
+
+.rt-nav__product {
+  font-family: var(--rt-mono);
+  font-weight: 500;
+  font-size: var(--rt-fs-mono-sm);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--rt-text-3);
+  white-space: nowrap;
+}
+
+/* --- Section rail --------------------------------------------------------- */
+
+.rt-nav__sections {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1.2vw, 18px);
+}
+
+.rt-nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--rt-hit);
+  padding: 0 2px;
+  font-family: var(--rt-body);
+  font-weight: 500;
+  font-size: var(--rt-fs-small);
+  line-height: 1;
+  letter-spacing: 0.004em;
+  color: var(--rt-text-3);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-nav__link:hover {
+  color: var(--rt-text-2);
+}
+
+.rt-nav__link.is-active {
+  color: var(--rt-text);
+}
+
+/* Route links are anchors, not scroll buttons — same rail, same weight, so
+   the chrome does not visibly change species between pages. */
+.rt-nav__link--route {
+  text-decoration: none;
+}
+
+/* The dot always holds its place so the labels never shift as the spy moves. */
+.rt-nav__dot {
+  width: 5px;
+  height: 5px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--rt-ember);
+  transform: scale(0);
+  transition: transform var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-nav__link.is-active .rt-nav__dot {
+  transform: scale(1);
+}
+
+/* --- Actions -------------------------------------------------------------- */
+
+.rt-nav__actions {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: clamp(6px, 0.8vw, 14px);
+}
+
+.rt-nav__cart {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--rt-hit);
+  height: var(--rt-hit);
+  color: var(--rt-text-2);
+  transition: color var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-nav__cart:hover {
+  color: var(--rt-text);
+}
+
+.rt-nav__count {
+  display: grid;
+  place-items: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 5px;
+  font-family: var(--rt-mono);
+  font-weight: 500;
+  font-size: var(--rt-fs-mono-sm);
+  line-height: 1;
+  letter-spacing: 0;
+  /* Bone, not ember: the pre-order button is right beside it and only one of
+     the two is allowed to be the action colour. */
+  color: var(--rt-ink);
+  background: var(--rt-bone);
+  border-radius: var(--rt-r-pill);
+}
+
+.rt-nav__cart .rt-nav__count {
+  position: absolute;
+  top: 5px;
+  right: 2px;
+}
+
+.rt-nav__burger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+  width: var(--rt-hit);
+  height: var(--rt-hit);
+  color: var(--rt-text);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.rt-nav__burger-line {
+  display: block;
+  width: 20px;
+  height: 1px;
+  background: currentColor;
+  transition: transform var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-nav__burger:hover .rt-nav__burger-line:first-child {
+  transform: translateX(-2px);
+}
+
+.rt-nav__burger:hover .rt-nav__burger-line:last-child {
+  transform: translateX(2px);
+}
+
+/* --- Scroll progress ------------------------------------------------------
+   One ember hairline on the nav's bottom edge. Driven entirely by the custom
+   property, so it never triggers a React render. */
+
+.rt-nav__progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--rt-ember);
+  transform: scaleX(var(--rt-nav-p));
+  transform-origin: left;
+  opacity: 0;
+  transition: opacity var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-nav.is-solid .rt-nav__progress {
+  opacity: 1;
+}
+
+/* --- Mobile overlay ------------------------------------------------------- */
+
+.rt-nav__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--rt-z-overlay);
+  display: flex;
+  flex-direction: column;
+  background: var(--rt-ink);
+  opacity: 0;
+  visibility: hidden;
+  /* Delaying visibility rather than toggling display keeps the close animation
+     and takes the whole panel out of the tab order when it is shut. */
+  transition: opacity var(--rt-t-med) var(--rt-ease-out),
+    visibility 0s linear var(--rt-t-med);
+}
+
+.rt-nav__overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity var(--rt-t-med) var(--rt-ease-out), visibility 0s;
+}
+
+.rt-nav__overlay-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  height: var(--rt-header-h);
+  padding-inline: var(--rt-gutter);
+  border-bottom: 1px solid var(--rt-line);
+}
+
+.rt-nav__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--rt-hit);
+  height: var(--rt-hit);
+  margin-right: -10px;
+  color: var(--rt-text);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.rt-nav__menu {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  gap: clamp(2px, 1.2vw, 10px);
+  padding: var(--rt-block) var(--rt-gutter);
+  overflow-y: auto;
+}
+
+.rt-nav__menu-link {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(12px, 3vw, 22px);
+  padding: 4px 0;
+  font-family: var(--rt-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 9vw, 3rem);
+  line-height: 1.04;
+  letter-spacing: -0.004em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--rt-text-2);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  opacity: 0;
+  transform: translate3d(0, 16px, 0);
+  transition: opacity var(--rt-t-slow) var(--rt-ease-out),
+    transform var(--rt-t-slow) var(--rt-ease-out),
+    color var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-nav__overlay.is-open .rt-nav__menu-link {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--rt-i, 0) * var(--rt-nav-stagger));
+}
+
+.rt-nav__menu-link:hover,
+.rt-nav__menu-link.is-active {
+  color: var(--rt-text);
+}
+
+.rt-nav__menu-index {
+  flex-shrink: 0;
+  font-family: var(--rt-mono);
+  font-weight: 500;
+  font-size: var(--rt-fs-mono-sm);
+  letter-spacing: 0.16em;
+  color: var(--rt-text-3);
+  transition: color var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-nav__menu-link.is-active .rt-nav__menu-index {
+  color: var(--rt-ember);
+}
+
+.rt-nav__overlay-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 16px;
+  padding: clamp(18px, 3vw, 28px) var(--rt-gutter);
+  padding-bottom: calc(clamp(18px, 3vw, 28px) + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--rt-line);
+}
+
+.rt-nav__overlay-cart {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--rt-hit);
+  font-family: var(--rt-mono);
+  font-weight: 500;
+  font-size: var(--rt-fs-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rt-text-2);
+  transition: color var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-nav__overlay-cart:hover {
+  color: var(--rt-text);
+}
+
+.rt-nav__overlay-cta {
+  text-decoration: none;
+}
+
+/* --- Responsive ----------------------------------------------------------- */
+
+/* The centre rail needs the full run of section labels plus the brand and the
+   actions. Below this it stops being a rail and becomes the overlay. */
+@media (max-width: 1100px) {
+  .rt-nav__inner {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  /* The rail is what collapses, not the basket: the cart count is the one
+     piece of state the chrome carries, and hiding it behind the burger means
+     a customer on a phone cannot see that they have anything in it. */
+  .rt-nav__sections {
+    display: none;
+  }
+
+  .rt-nav__burger {
+    display: inline-flex;
+  }
+}
+
+@media (min-width: 1101px) {
+  .rt-nav__overlay {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .rt-nav__hairline,
+  .rt-nav__product {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .rt-nav__badge {
+    width: 28px;
+    height: 28px;
+  }
+
+  .rt-nav__home {
+    gap: 8px;
+  }
+
+  .rt-nav__wordmark {
+    font-size: var(--rt-fs-body);
+    letter-spacing: 0.04em;
+  }
+
+  /* Brand + cart + burger is all that fits at 320px. The pre-order CTA moves
+     into the overlay foot, where it is a full-width button rather than a
+     squeezed one — and on the landing page the buy bar carries it anyway. */
+  .rt-nav__cta {
+    display: none;
+  }
+
+  .rt-nav__overlay-foot {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--rt-s-3);
+  }
+
+  .rt-nav__overlay-cta {
+    width: 100%;
+  }
+}

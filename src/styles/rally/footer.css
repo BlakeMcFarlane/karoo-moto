@@ -1,0 +1,152 @@
+/* ==========================================================================
+   Site footer — the strip under every route
+
+   Ink ground, one hairline at the top, everything else set in mono at the
+   smallest size the page uses. On the landing page it follows the closing
+   brand moment, so it must read as the small print after the signature, not
+   as a thirteenth section.
+   ========================================================================== */
+
+.rt-foot {
+  position: relative;
+  background: var(--rt-ink);
+  border-top: 1px solid var(--rt-line);
+  padding-top: var(--rt-block);
+  /* The purchase bar is fixed over the bottom of the viewport on the landing
+     page. Reserving the room unconditionally costs one empty strip on the
+     routes without a buy bar and guarantees the links are never sat on. */
+  padding-bottom: calc(var(--rt-buybar-h) + var(--rt-block));
+}
+
+.rt-foot__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--rt-block) clamp(24px, 4vw, 64px);
+}
+
+/* --- Brand ---------------------------------------------------------------- */
+
+.rt-foot__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--rt-s-3);
+  min-width: 0;
+}
+
+/* The supplied badge is square with dark corners — it has to be clipped. */
+.rt-foot__badge {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  clip-path: circle(49.5% at 50% 50%);
+}
+
+.rt-foot__brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-s-1);
+  min-width: 0;
+}
+
+.rt-foot__signoff {
+  font-family: var(--rt-display);
+  font-weight: 600;
+  font-size: var(--rt-fs-h4);
+  line-height: 1.15;
+  letter-spacing: 0.012em;
+  color: var(--rt-text);
+  text-wrap: balance;
+  margin: 0;
+}
+
+/* Letterspaced the way the coordinates are printed on the badge itself. */
+.rt-foot__coords {
+  font-size: var(--rt-fs-mono-sm);
+  letter-spacing: 0.24em;
+  /* Tracking is applied to the right of every glyph, including the last. */
+  text-indent: 0.24em;
+  margin: 0;
+}
+
+/* --- Links ---------------------------------------------------------------- */
+
+.rt-foot__links {
+  justify-content: flex-end;
+}
+
+.rt-foot__link {
+  font-family: var(--rt-mono);
+  font-weight: 500;
+  font-size: var(--rt-fs-mono-sm);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rt-text-3);
+  text-decoration: none;
+  padding-block: var(--rt-s-1);
+  white-space: nowrap;
+  transition: color var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-foot__link:hover,
+.rt-foot__link:focus-visible {
+  color: var(--rt-text);
+  text-decoration: underline;
+  text-decoration-color: var(--rt-ember);
+  text-underline-offset: 0.5em;
+}
+
+/* --- Legal ---------------------------------------------------------------- */
+
+.rt-foot__base {
+  margin-top: var(--rt-block);
+}
+
+.rt-foot__rule {
+  margin-bottom: var(--rt-s-4);
+}
+
+.rt-foot__legal {
+  /* The mono utility upper-cases; the brand name and the © keep their case. */
+  text-transform: none;
+  font-size: var(--rt-fs-mono-sm);
+  letter-spacing: 0.05em;
+  color: var(--rt-text-3);
+  margin: 0;
+}
+
+/* --- Responsive ----------------------------------------------------------- */
+
+@media (max-width: 1000px) {
+  .rt-foot__inner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rt-foot__links {
+    justify-content: flex-start;
+  }
+}
+
+/* Under 560px `.rt-divided` becomes a ruled vertical list — the links are the
+   primary way out of the page at that width, so they take the full measure. */
+@media (max-width: 560px) {
+  .rt-foot__link {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: var(--rt-hit);
+    padding-block: 0;
+  }
+}
+
+/* Touch tablets sit at 768–1099px, above the narrow stacking breakpoint, so a
+   width-gated 44px rule would leave them with mouse-sized targets. */
+@media (pointer: coarse) {
+  .rt-foot__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--rt-hit);
+  }
+}

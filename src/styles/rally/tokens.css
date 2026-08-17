@@ -1,0 +1,207 @@
+/* ==========================================================================
+   Rally Tower — design tokens
+
+   The palette is sampled directly from the two supplied KarooMoto assets:
+   the circular badge (teal sky, ember sun, bone paper, ink linework) and the
+   sunset backsplash (ember → sun gradient over a near-black silhouette).
+
+   Balance: ~70% ink/graphite, ~18% bone/steel, ~9% ember, ~3% teal.
+   Ember is the action colour and is reserved for it. Teal is the technical
+   accent — used for data, diagrams and confirmation states only.
+   ========================================================================== */
+
+:root {
+  /* --- Ink (the page ground) --- */
+  --rt-ink: #070707;
+  /* Channels, so any section can build a scrim without re-deriving the hex:
+     rgb(var(--rt-ink-rgb) / 0.6) */
+  --rt-ink-rgb: 7 7 7;
+  --rt-ink-2: #0c0c0d;
+  /* The dark surfaces have to be perceptually distinct or the page's whole
+     dark → panel → bone rhythm collapses into one unbroken black run. At
+     #121213 the panel sat 11 RGB points off the ink — about 0.4% luminance,
+     i.e. the same colour on any real screen. These steps are separable
+     without lifting the page off its near-black ground. */
+  --rt-panel: #17181a;
+  --rt-panel-2: #212327;
+  --rt-panel-3: #2c2e33;
+
+  /* --- Bone (light surfaces, sampled from the badge paper) --- */
+  --rt-bone: #ece3d2;
+  --rt-bone-2: #ded3bf;
+  --rt-bone-ink: #14120e;
+  --rt-bone-ink-2: #4a463d;
+  --rt-bone-ink-3: #6b665b;
+  /* Lifted bone, for the top of a card gradient on the light ground. */
+  --rt-bone-hi: #fff9ee;
+  /* Text on an ember fill. */
+  --rt-on-ember: #ffffff;
+
+  /* --- Ember (the sun in both assets — the action colour) --- */
+  --rt-ember: #e2571e;
+  --rt-ember-hi: #ff7433;
+  --rt-ember-deep: #b03e12;
+  --rt-sun: #f2a63c;
+  /* The fill behind white button text. `--rt-ember` itself measures only
+     3.74:1 against #fff, which fails AA on the site's single most important
+     control. This is a shade down at 4.78:1, close enough to read as the same
+     colour while the accent uses (which sit on ink, not under white text)
+     keep the brighter value. */
+  --rt-ember-fill: #c8481a;
+
+  /* --- Teal (badge sky — technical accent, data + confirmation) --- */
+  --rt-teal: #1f7f80;
+  --rt-teal-hi: #35a8a4;
+  --rt-teal-dim: rgba(53, 168, 164, 0.14);
+
+  /* --- Text on ink --- */
+  --rt-text: #f4f1ea;
+  --rt-text-2: #b9b3a7;
+  /* Lifted from #7c766b, which measured 4.47:1 on ink — under AA for the
+     small mono labels this token is actually used for. Now ~6.1:1. */
+  --rt-text-3: #9a9284;
+
+  /* --- Lines ---
+     `--rt-line` / `--rt-line-2` are re-pointed inside `.rt-section--bone`
+     (see base.css) so every primitive keeps its hairlines on either ground. */
+  --rt-line: rgba(236, 227, 210, 0.11);
+  --rt-line-2: rgba(236, 227, 210, 0.2);
+  --rt-line-bone: rgba(20, 18, 14, 0.14);
+  --rt-line-bone-2: rgba(20, 18, 14, 0.26);
+  --rt-line-ember: rgba(226, 87, 30, 0.42);
+  --rt-line-teal: rgba(53, 168, 164, 0.34);
+
+  /* --- Type --- */
+  --rt-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --rt-body: 'Inter', system-ui, sans-serif;
+  --rt-mono: 'IBM Plex Mono', ui-monospace, 'Courier New', monospace;
+
+  /* Only these weights are embedded — never specify others.
+     Barlow Condensed 600/700 · Inter 400/500/600/700 · IBM Plex Mono 500 */
+
+  /* Fluid type scale.
+     The vw slope on each step is steep enough that it is ACTUALLY ENGAGED
+     across phone widths. A gentle slope looks reasonable in a token file but
+     sits below its own floor until ~560px, which makes every phone from 320
+     to 560 typographically identical — the floor is a safety net, not a
+     design. Each slope below is chosen so `slope × 320px ≈ the floor`, so the
+     scale starts responding at the narrowest supported width. */
+  --rt-fs-display: clamp(3rem, 15vw, 10.5rem);
+  --rt-fs-h1: clamp(2.6rem, 13vw, 8rem);
+  --rt-fs-h2: clamp(1.9rem, 9.5vw, 4.4rem);
+  --rt-fs-h3: clamp(1.3rem, 6.5vw, 2.1rem);
+  /* Between h2 and h3 — pulled-out figures (price, guarantee numerals, the
+     hero stat rail) that must out-weigh a heading without competing with the
+     section h2. */
+  --rt-fs-figure: clamp(2.2rem, 11vw, 3.4rem);
+  --rt-fs-h4: clamp(1.08rem, 4.6vw, 1.32rem);
+  /* Responds on phones without shouting — a lede that reaches its desktop cap
+     at 390px competes with the heading above it. */
+  --rt-fs-lede: clamp(1.02rem, 4.4vw, 1.24rem);
+  /* Never below 16px: smaller is uncomfortable on a phone and trips iOS
+     input zoom. */
+  --rt-fs-body: clamp(1rem, 1.05vw, 1.05rem);
+  --rt-fs-small: 0.9rem;
+  --rt-fs-mono: 0.78rem;
+  --rt-fs-mono-sm: 0.72rem;
+
+  /* --- Rhythm --- */
+  --rt-gutter: clamp(20px, 4.2vw, 56px);
+  --rt-maxw: 1360px;
+  --rt-maxw-text: 62ch;
+  --rt-maxw-narrow: 880px;
+
+  /* Component-level spacing. The one axis that was missing — without it every
+     section invents its own 10px/14px gaps and they drift. */
+  --rt-s-1: 6px;
+  --rt-s-2: 10px;
+  --rt-s-3: 14px;
+  --rt-s-4: 20px;
+  --rt-s-5: 28px;
+  --rt-s-6: 40px;
+
+  --rt-section-y: clamp(80px, 11vh, 176px);
+  --rt-section-y-sm: clamp(56px, 7vh, 104px);
+  --rt-block: clamp(28px, 4vw, 56px);
+  /* Gap between sub-groups *inside* one section (e.g. feature tiers). Bigger
+     than --rt-block, smaller than a section boundary. */
+  --rt-block-lg: clamp(48px, 6.5vw, 96px);
+
+  /* --- Geometry — machined, not soft --- */
+  --rt-r-xs: 2px;
+  --rt-r-sm: 4px;
+  --rt-r-md: 8px;
+  --rt-r-lg: 14px;
+  --rt-r-pill: 999px;
+
+  /* --- Motion ---
+     One in-curve and one out-curve for the whole page. Reveals are long and
+     unhurried (cinematic); interface feedback is short and crisp. */
+  --rt-ease-out: cubic-bezier(0.16, 0.84, 0.24, 1);
+  --rt-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --rt-ease-soft: cubic-bezier(0.33, 0.9, 0.28, 1);
+
+  --rt-t-reveal: 1120ms;
+  --rt-t-clip: 1280ms; /* image frames open a beat slower than text */
+  --rt-t-line: 1180ms; /* type rising out of its own baseline */
+  --rt-t-drift: 1400ms; /* ken-burns settle on editorial imagery */
+  --rt-t-slow: 720ms;
+  --rt-t-med: 380ms;
+  --rt-t-fast: 200ms;
+  --rt-t-tap: 120ms;
+
+  /* --- Depth --- */
+  --rt-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --rt-shadow: 0 18px 48px -18px rgba(0, 0, 0, 0.8);
+  --rt-shadow-lg: 0 42px 90px -30px rgba(0, 0, 0, 0.9);
+  --rt-glow-ember: 0 0 0 1px var(--rt-line-ember),
+    0 14px 42px -16px rgba(226, 87, 30, 0.55);
+
+  /* --- Sticky chrome --- */
+  --rt-header-h: 68px;
+  --rt-buybar-h: 76px;
+
+  /* --- Stacking order ---
+     One scale so no section has to guess a z-index. */
+  --rt-z-grain: 1;
+  --rt-z-sticky: 20;
+  --rt-z-buybar: 60;
+  --rt-z-nav: 70;
+  --rt-z-overlay: 90;
+
+  /* --- Off-screen chrome (nav, buy bar) — one surface, so they cannot drift --- */
+  /* Near-opaque. At 0.86 the bar turned muddy brown over the bone sections and
+     body copy read straight through it — a persistent chrome element cannot
+     change colour depending on what happens to be behind it. */
+  --rt-glass-bg: rgb(var(--rt-ink-rgb) / 0.97);
+  --rt-glass-blur: blur(18px) saturate(1.25);
+
+  /* --- Interaction --- */
+  --rt-stagger: 90ms; /* one step of a staggered reveal */
+  --rt-hit: 44px; /* minimum touch target */
+  --rt-card-pad: clamp(22px, 2.4vw, 34px);
+}
+
+@media (min-width: 900px) {
+  :root {
+    --rt-header-h: 76px;
+    --rt-buybar-h: 84px;
+  }
+}
+
+/* Chrome height must key off available HEIGHT, not width. Keyed off width, a
+   320x568 phone gave up 25% of its screen to the two fixed bars and a phone in
+   landscape gave up 37%. */
+@media (max-height: 700px) {
+  :root {
+    --rt-header-h: 58px;
+    --rt-buybar-h: 64px;
+  }
+}
+
+@media (max-height: 520px) {
+  :root {
+    --rt-header-h: 52px;
+    --rt-buybar-h: 58px;
+  }
+}

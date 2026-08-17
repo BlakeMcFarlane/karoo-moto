@@ -1,0 +1,428 @@
+/* ==========================================================================
+   About KarooMoto — the brand story
+
+   A reading page, so almost all of the design work is pacing: one measure,
+   five chapter settings, two bone-ground pull quotes and a graded close. The
+   only things set larger than body copy are the hero statement, the two
+   quotes and the sign-off, in that order — everything else is furniture.
+
+   Alpha ramps cannot be expressed with flat colour tokens, so the photographic
+   grading here uses the shared `.rt-scrim` primitives rather than hand-rolled
+   gradients; the exposure work is done with `filter` on the images themselves.
+   ========================================================================== */
+
+/* --- Hero ---------------------------------------------------------------- */
+
+/* Two thirds of a screen, not a whole one: this page's job is to get you
+   reading. `body` already carries the fixed nav's offset, so the hero starts
+   below the chrome and needs no bleed compensation. */
+.rt-about__hero {
+  position: relative;
+  width: 100%;
+  min-height: 62vh; /* fallback for browsers without small-viewport units */
+  min-height: 66svh;
+  display: flex;
+  align-items: flex-end;
+  padding-block: var(--rt-block-lg) var(--rt-block);
+  background: var(--rt-ink);
+  overflow: clip;
+  isolation: isolate;
+}
+
+.rt-about__hero-ground {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: clip;
+}
+
+/* A different frame from the landing hero, which rests at 60% 50% and only
+   drops the exposure to 0.92. Here the crop sits left, on the rider and the
+   dark mountain line rather than on the sun, and the whole plate is graded
+   down two stops so a left-aligned lockup reads over it without the radial
+   pool the landing page needs. Nothing moves — the push-in belongs to the
+   landing page, and a story should arrive calmly. */
+.rt-about__hero-sky {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 26% 66%;
+  filter: brightness(0.46) contrast(1.08) saturate(0.82);
+  transform: scale(1.04);
+}
+
+.rt-about__hero-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-s-5);
+  text-shadow: 0 1px 18px rgb(var(--rt-ink-rgb) / 0.7),
+    0 1px 3px rgb(var(--rt-ink-rgb) / 0.6);
+}
+
+/* Below --rt-fs-h1: eight words of sentence-case type at the full h1 clamp
+   fills a desktop screen edge to edge and stops reading like a sentence. */
+.rt-about__hero-title {
+  font-size: clamp(var(--rt-fs-h2), 7vw, var(--rt-fs-h1));
+  line-height: 0.92;
+  max-width: 15ch;
+}
+
+.rt-about__hero-line > span {
+  padding-bottom: 0.2em;
+}
+
+/* --- Front matter -------------------------------------------------------- */
+
+/* "Our Story" opens the reading section. It is a label, not a heading — the
+   chapters carry the outline — so it is set at display scale but quietly, with
+   a rule that draws itself in beside it. */
+.rt-about__front {
+  padding-bottom: 0;
+}
+
+.rt-about__front-inner {
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 3vw, 40px);
+}
+
+.rt-about__front-label {
+  font-family: var(--rt-display);
+  font-weight: 600;
+  font-size: var(--rt-fs-h3);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--rt-text);
+  white-space: nowrap;
+  margin: 0;
+}
+
+.rt-about__front-rule {
+  flex: 1 1 auto;
+  background: var(--rt-line-2);
+}
+
+
+/* --- Chapters ------------------------------------------------------------ */
+
+.rt-about__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'label'
+    'prose'
+    'media';
+  row-gap: var(--rt-s-5);
+  align-items: start;
+}
+
+.rt-about__label-wrap {
+  grid-area: label;
+}
+
+/* Navigational, not editorial. Mono at eyebrow scale, tracked wide, sitting
+   in its own column or above the measure depending on the chapter. */
+.rt-about__label {
+  letter-spacing: 0.24em;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.rt-about__prose {
+  grid-area: prose;
+  display: flex;
+  flex-direction: column;
+  /* Gap rather than a margin rule: every paragraph is wrapped in a <Reveal>,
+     so the rhythm has to live on the container. */
+  gap: var(--rt-s-5);
+  max-width: var(--rt-maxw-text);
+}
+
+/* A long story wants a reading size, not a caption size — and more air rather
+   than more width, so the measure stays at --rt-maxw-text. */
+.rt-about__para {
+  font-size: var(--rt-fs-lede);
+  line-height: 1.72;
+}
+
+/* --- Chapter setting: label in the margin -------------------------------- */
+
+@media (min-width: 1001px) {
+  .rt-about__chapter--margin .rt-about__inner {
+    grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
+    grid-template-areas: 'label prose';
+    column-gap: clamp(40px, 5vw, 88px);
+  }
+
+  /* Optically lines the mono cap-height up with the first line of body copy. */
+  .rt-about__chapter--margin .rt-about__label {
+    padding-top: 0.35em;
+  }
+}
+
+/* --- Chapter setting: indented column ------------------------------------ */
+
+/* The whole block steps in off the page edge and hangs from a hairline, so the
+   longest single-paragraph chapter reads as an aside rather than as more of
+   the same column. */
+@media (min-width: 1001px) {
+  .rt-about__chapter--indent .rt-about__inner {
+    margin-left: clamp(0px, 11vw, 11rem);
+    padding-left: clamp(24px, 3vw, 48px);
+    border-left: 1px solid var(--rt-line);
+  }
+}
+
+/* --- Chapter setting: lifted panel --------------------------------------- */
+
+/* The one chapter on a panel ground. Its measure is centred in the band, which
+   is the only place on the page the column leaves the left edge — the change
+   of ground earns it. */
+.rt-about__chapter--panel .rt-about__inner {
+  max-width: var(--rt-maxw-narrow);
+  margin-inline: auto;
+}
+
+.rt-about__chapter--panel .rt-about__prose {
+  max-width: none;
+}
+
+.rt-about__chapter--panel .rt-about__para {
+  max-width: var(--rt-maxw-text);
+}
+
+/* --- Chapter setting: with the photograph -------------------------------- */
+
+.rt-about__media-wrap {
+  grid-area: media;
+  margin-top: var(--rt-block);
+}
+
+/* Feathered and pulled down a little: the workshop behind the tower is lit,
+   and a bright rectangle butted against body copy on the ink ground reads as
+   a broken image. */
+.rt-about__media {
+  --rt-feather: 14%;
+  aspect-ratio: 3 / 4;
+}
+
+.rt-about__media img {
+  object-position: 50% 46%;
+  filter: brightness(0.82) contrast(1.06) saturate(0.94);
+}
+
+@media (min-width: 1001px) {
+  .rt-about__chapter--media .rt-about__inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.44fr);
+    grid-template-areas:
+      'label media'
+      'prose media';
+    grid-template-rows: auto 1fr;
+    column-gap: clamp(40px, 5vw, 96px);
+  }
+
+  .rt-about__media-wrap {
+    margin-top: 0;
+    /* This chapter runs long; the photograph holds its place beside the copy
+       instead of leaving a column of empty ground under itself. */
+    position: sticky;
+    top: calc(var(--rt-header-h) + var(--rt-block));
+  }
+}
+
+/* --- Chapter setting: statement ------------------------------------------ */
+
+/* One sentence, so it is set as one — larger, at full text contrast, on a
+   short measure. It steps up from the body copy without reaching the pull
+   quote that follows it. */
+.rt-about__chapter--statement .rt-about__inner {
+  row-gap: var(--rt-block);
+}
+
+.rt-about__chapter--statement .rt-about__para {
+  font-size: var(--rt-fs-h3);
+  font-weight: 400;
+  line-height: 1.32;
+  letter-spacing: -0.004em;
+  color: var(--rt-text);
+  max-width: 24ch;
+}
+
+/* --- Pull quotes --------------------------------------------------------- */
+
+/* The two emotional beats, and the only place the story changes ground. Both
+   are set identically so they read as a pair. */
+.rt-about__beat-inner {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(24px, 3.4vw, 48px);
+}
+
+.rt-about__beat-rule {
+  width: clamp(64px, 8vw, 120px);
+  background: var(--rt-line-2);
+}
+
+/* On a wide screen the quote takes the same column the chapters' prose does,
+   with its rule out in the margin — so the beat sits on the page's grid rather
+   than floating in a band of its own. */
+@media (min-width: 1001px) {
+  .rt-about__beat-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
+    column-gap: clamp(40px, 5vw, 88px);
+    align-items: start;
+  }
+
+  .rt-about__beat-rule {
+    width: 100%;
+    /* The rule carries the quote's own font-size purely so this offset is
+       expressed in the type it is aligning to: 0.3em of a 66px line drops the
+       hairline onto the cap-height of the first line at every width. */
+    font-size: clamp(var(--rt-fs-figure), 6.2vw, var(--rt-fs-h2));
+    margin-top: 0.3em;
+  }
+}
+
+.rt-about__quote {
+  margin: 0;
+}
+
+/* The largest type on the page after the hero. Barlow Condensed 600 rather
+   than 700: this is somebody talking, not a headline. */
+.rt-about__quote-text {
+  font-family: var(--rt-display);
+  font-weight: 600;
+  font-size: clamp(var(--rt-fs-figure), 6.2vw, var(--rt-fs-h2));
+  line-height: 1.04;
+  letter-spacing: -0.014em;
+  color: var(--rt-text);
+  text-wrap: balance;
+  max-width: 26ch;
+  margin: 0;
+}
+
+/* --- Close --------------------------------------------------------------- */
+
+.rt-about__close {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  /* Deeper than a section, shallower than the hero: the page ends on a held
+     frame rather than on one more block of copy. */
+  min-height: 48vh;
+  min-height: 52svh;
+  padding-block: var(--rt-section-y);
+  background: var(--rt-ink);
+  overflow: clip;
+  isolation: isolate;
+}
+
+.rt-about__close-ground {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: clip;
+}
+
+/* The third crop of the same photograph, and the darkest: sky-heavy, right of
+   the sun, graded until it reads as texture under the sign-off rather than as
+   a second look at the hero. */
+.rt-about__close-sky {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 84% 26%;
+  filter: brightness(0.34) contrast(1.1) saturate(0.7);
+  transform: scale(1.08);
+}
+
+.rt-about__close .rt-scrim--veil {
+  --rt-veil: 0.52;
+}
+
+.rt-about__close-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--rt-block);
+  text-shadow: 0 1px 18px rgb(var(--rt-ink-rgb) / 0.7),
+    0 1px 3px rgb(var(--rt-ink-rgb) / 0.6);
+}
+
+.rt-about__signoff {
+  font-family: var(--rt-display);
+  font-weight: 700;
+  font-size: clamp(var(--rt-fs-figure), 6.4vw, var(--rt-fs-h2));
+  line-height: 0.98;
+  letter-spacing: -0.014em;
+  color: var(--rt-text);
+  text-wrap: balance;
+  max-width: 16ch;
+  margin: 0;
+}
+
+/* The one thing to do at the end of a story is not to buy something, so the
+   link onward is quiet rather than a button. */
+.rt-about__onward {
+  text-shadow: none;
+}
+
+/* --- Breakpoints --------------------------------------------------------- */
+
+@media (max-width: 1000px) {
+  /* The margin column has nowhere to go, so every chapter becomes the same
+     single column — the variation from here down is ground and type, not
+     geometry. */
+  .rt-about__chapter--panel .rt-about__inner {
+    max-width: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .rt-about__hero {
+    min-height: 58vh;
+    min-height: 62svh;
+  }
+
+  .rt-about__hero-title {
+    max-width: 18ch;
+  }
+
+  .rt-about__quote-text {
+    max-width: 26ch;
+  }
+}
+
+@media (max-width: 560px) {
+  /* At this width the label and the rule can no longer share a line without
+     the rule collapsing to a few pixels. */
+  .rt-about__front-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--rt-s-3);
+  }
+
+  .rt-about__front-rule {
+    width: 100%;
+  }
+
+  .rt-about__label {
+    letter-spacing: 0.18em;
+  }
+
+  .rt-about__signoff,
+  .rt-about__quote-text {
+    max-width: none;
+  }
+}

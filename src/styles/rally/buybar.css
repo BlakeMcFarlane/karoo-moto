@@ -1,0 +1,235 @@
+/* ==========================================================================
+   buybar — the persistent purchase bar (component #13)
+
+   Fixed to the bottom edge, hidden while the hero owns the screen and hidden
+   again over the pre-order panel and the closing brand moment. The bar is
+   deliberately quiet: a hairline, a blurred ink ground, one ember button.
+   ========================================================================== */
+
+.rt-buybar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  /* Never taller than the token unless the phone has a home indicator. */
+  min-height: var(--rt-buybar-h);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  border-top: 1px solid var(--rt-line-2);
+
+  /* Opaque fallback first; the blurred translucent ground only where the
+     browser can mix it. */
+  background-color: var(--rt-ink);
+  background-color: var(--rt-glass-bg);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+
+  /* Resting (hidden) state. `visibility` is transitioned alongside the slide
+     so the bar is genuinely out of the tab order while it is off screen. */
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, 100%, 0);
+  /* `visibility` is stepped, not eased: on hide it must flip at the END of
+     the slide, on show at the START. Easing it left the bar aria-hidden but
+     still focusable for the whole 720ms transition — an invisible tab stop
+     and a WCAG 4.1.2 violation four times per scroll. */
+  transition: transform var(--rt-t-slow) var(--rt-ease-out),
+    opacity var(--rt-t-slow) var(--rt-ease-out),
+    visibility 0s linear var(--rt-t-slow);
+  will-change: transform, opacity;
+}
+
+.rt-buybar.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transition: transform var(--rt-t-slow) var(--rt-ease-out),
+    opacity var(--rt-t-slow) var(--rt-ease-out), visibility 0s linear;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Reduced motion: appear and disappear outright, no slide. */
+.rt-buybar.rt-buybar--instant {
+  transition: none;
+  transform: none;
+}
+
+.rt-buybar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(16px, 2.4vw, 44px);
+  min-height: var(--rt-buybar-h);
+}
+
+/* --- Left: what is being bought, and for which motorcycle ---------------- */
+
+.rt-buybar__id {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  /* Lets the truncating bike line actually shrink inside the flex row. */
+  min-width: 0;
+}
+
+.rt-buybar__name {
+  margin: 0;
+  font-family: var(--rt-display);
+  font-weight: 600;
+  font-size: var(--rt-fs-h4);
+  line-height: 1;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--rt-text);
+  white-space: nowrap;
+}
+
+.rt-buybar__bike {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  min-width: 0;
+  line-height: 1.2;
+  /* The mono primitive tracks wide for standalone labels; this line has to
+     survive a 320px viewport. */
+  letter-spacing: 0.1em;
+}
+
+.rt-buybar__bike-text {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rt-buybar__cue {
+  flex-shrink: 0;
+}
+
+/* Ember dot — the "still to be chosen" state, opposite the teal check. */
+.rt-buybar__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--rt-ember);
+}
+
+/* --- Right: total and the action ----------------------------------------- */
+
+.rt-buybar__act {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 1.8vw, 28px);
+  flex-shrink: 0;
+}
+
+.rt-buybar__price {
+  margin: 0;
+  font-family: var(--rt-display);
+  font-weight: 700;
+  font-size: var(--rt-fs-h3);
+  line-height: 1;
+  letter-spacing: -0.004em;
+  color: var(--rt-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.rt-buybar__cta {
+  min-height: 50px;
+}
+
+/* Only shown once the standalone price column is dropped. */
+.rt-buybar__cta-price {
+  display: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Responsive ----------------------------------------------------------
+   The bar sheds, in order: the price's breathing room, the product name, the
+   mono tracking, and finally the separate price column — never the bike line
+   and never the button. */
+
+@media (max-width: 1000px) {
+  .rt-buybar__price {
+    font-size: var(--rt-fs-h4);
+  }
+}
+
+@media (max-width: 768px) {
+  .rt-buybar__inner {
+    gap: 18px;
+  }
+
+  .rt-buybar__cta {
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Compact: the page above already says what the product is; what the bar
+     still has to hold is the motorcycle and the action. */
+  .rt-buybar__name {
+    display: none;
+  }
+
+  .rt-buybar__inner {
+    gap: 14px;
+  }
+
+  .rt-buybar__cta {
+    min-height: 44px;
+    font-size: 0.96rem;
+    padding-inline: 18px;
+  }
+}
+
+@media (max-width: 560px) {
+  .rt-buybar__bike {
+    letter-spacing: 0.06em;
+  }
+
+  .rt-buybar__act {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  /* Two competing numbers do not fit beside a truncating label, so the total
+     folds into the button and reads as one price-and-action unit. */
+  .rt-buybar__price {
+    display: none;
+  }
+
+  .rt-buybar__cta-price {
+    display: inline;
+    padding-left: 9px;
+    border-left: 1px solid var(--rt-line-2);
+  }
+
+  .rt-buybar__cta {
+    gap: 9px;
+    padding-inline: 14px;
+    font-size: 0.92rem;
+    letter-spacing: 0.05em;
+  }
+}
+
+/* --- Compact prompt ------------------------------------------------------- */
+
+.rt-buybar__prompt--short {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .rt-buybar__prompt--full {
+    display: none;
+  }
+
+  .rt-buybar__prompt--short {
+    display: inline;
+  }
+}

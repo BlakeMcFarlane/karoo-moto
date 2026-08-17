@@ -3,12 +3,18 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Karoo Moto — premium South African adventure-motorcycle hardware. Storefront front end.",
+  "description": "Karoo Moto \u2014 premium South African adventure-motorcycle hardware. Storefront front end.",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test:fitment": "node scripts/test-fitment.mjs",
+    "shoot": "node scripts/shoot.mjs",
+    "check": "python scripts/check_rally.py",
+    "test:chrome": "node scripts/test-chrome-overlap.mjs",
+    "test": "node scripts/test-chrome-overlap.mjs && node scripts/test-fitment.mjs",
+    "shopify:discover": "node scripts/shopify-discover.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -19,8 +25,12 @@
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.2",
+    "puppeteer-core": "^25.7.0",
     "typescript": "^5.6.2",
     "vite": "^5.4.8",
     "vite-plugin-singlefile": "^2.3.3"
+  },
+  "allowScripts": {
+    "esbuild@0.21.5": true
   }
 }

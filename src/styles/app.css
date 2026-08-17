@@ -1,0 +1,229 @@
+/* ==========================================================================
+   App shell
+
+   The whole site now speaks one language — the Rally Tower design system in
+   `styles/rally/`. This file is only what sits outside it: the reset, the
+   document ground, the skip link and the toast. Everything else is a `rt-`
+   primitive.
+   ========================================================================== */
+
+@import './rally.css';
+
+/* --- Reset ---------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  background: var(--rt-ink);
+  /* Anchors and focus-into-view must clear the fixed navigation. */
+  scroll-padding-top: calc(var(--rt-header-h) + var(--rt-s-4));
+  scroll-padding-bottom: calc(var(--rt-buybar-h) + var(--rt-s-4));
+}
+
+body {
+  min-height: 100vh;
+  background: var(--rt-ink);
+  color: var(--rt-text);
+  font-family: var(--rt-body);
+  font-size: var(--rt-fs-body);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* The nav is fixed, so ordinary document pages start underneath it. The
+     landing page opts out (see .rt-page below) because its hero is a
+     full-bleed composition the transparent nav is meant to sit ON, not
+     below. */
+  padding-top: var(--rt-header-h);
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+/* --- Interactive chrome ---------------------------------------------------
+   Two browser defaults that make controls look broken on this palette:
+
+   1. `-webkit-tap-highlight-color` paints a translucent BLUE rectangle over
+      whatever you tap on touch devices. On an ink-and-ember page that reads as
+      a rendering fault. Focus rings, hover states and the button wipe already
+      give far better feedback.
+   2. Control labels are selectable by default, so a double-tap on the menu
+      button — or any impatient double-click — selects the words instead of
+      firing the control, leaving text highlighted with no obvious way to
+      clear it.
+
+   Applied to controls only. Body copy, the founder's story and the legal text
+   stay fully selectable, because people do copy those. */
+button,
+[role='button'],
+[role='option'],
+[role='tab'],
+summary,
+label,
+.rt-btn,
+.rt-link,
+.rt-nav__link,
+.rt-nav__menu-link,
+.rt-nav__burger {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  /* Never below 16px — iOS zooms the viewport on focus otherwise. Written
+     as 1rem so it scales with a user's root font-size preference. */
+  font-size: 1rem;
+  color: inherit;
+}
+
+ul,
+ol {
+  list-style: none;
+  padding: 0;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+:focus-visible {
+  outline: 2px solid var(--rt-ember-hi);
+  outline-offset: 3px;
+  border-radius: var(--rt-r-sm);
+}
+
+::selection {
+  background: var(--rt-ember);
+  color: var(--rt-on-ember);
+}
+
+main:focus {
+  outline: none;
+}
+
+/* --- Skip link ------------------------------------------------------------ */
+
+.skip-link {
+  position: fixed;
+  top: var(--rt-s-2);
+  left: var(--rt-s-2);
+  z-index: calc(var(--rt-z-overlay) + 10);
+  padding: 12px 18px;
+  font-family: var(--rt-mono);
+  font-size: var(--rt-fs-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rt-on-ember);
+  background: var(--rt-ember-fill);
+  border-radius: var(--rt-r-sm);
+  transform: translateY(-200%);
+  transition: transform var(--rt-t-med) var(--rt-ease-out);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* --- Toast ---------------------------------------------------------------- */
+
+/* The buy bar only exists on the landing page, so reserving its height on
+   every route left the toast floating ~96px off the bottom edge for a bar that
+   was not there. `.rt-page--bleed` is the landing page's own marker. */
+.toast-wrap {
+  position: fixed;
+  left: 50%;
+  bottom: var(--rt-s-4);
+  z-index: var(--rt-z-overlay);
+  transform: translateX(-50%);
+  pointer-events: none;
+  padding-inline: var(--rt-gutter);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.toast {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rt-s-2);
+  max-width: 100%;
+  padding: 12px 18px;
+  font-family: var(--rt-mono);
+  font-size: var(--rt-fs-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--rt-text);
+  background: var(--rt-glass-bg);
+  backdrop-filter: var(--rt-glass-blur);
+  border: 1px solid var(--rt-line-teal);
+  border-radius: var(--rt-r-sm);
+  box-shadow: var(--rt-shadow);
+  animation: toast-in var(--rt-t-med) var(--rt-ease-out);
+}
+
+body:has(.rt-page--bleed) .toast-wrap {
+  bottom: calc(var(--rt-buybar-h) + var(--rt-s-4));
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .toast {
+    animation: none;
+  }
+}
+
+/* Opt-in, not automatic. Only a page that opens with a full-bleed hero wants
+   to sit under the transparent nav; applying this to every `.rt-page` pulled
+   the product page's masthead underneath the navigation at every viewport. */
+.rt-page--bleed {
+  margin-top: calc(var(--rt-header-h) * -1);
+}
+
+/* --- Document-level page shell -------------------------------------------
+   Routes other than the landing page are ordinary documents on the ink
+   ground rather than full-bleed cinematic compositions. */
+
+.rt-doc {
+  min-height: 60vh;
+  padding-block: var(--rt-section-y-sm) var(--rt-section-y);
+}

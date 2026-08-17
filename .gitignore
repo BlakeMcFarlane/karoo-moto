@@ -27,3 +27,9 @@ pnpm-debug.log*
 
 # typescript incremental build info
 *.tsbuildinfo
+
+# Visual-audit captures (regenerate with `node scripts/shoot.mjs`)
+shots/
+
+# local Shopify credentials
+.env.local

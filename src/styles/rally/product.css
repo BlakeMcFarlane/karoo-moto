@@ -1,0 +1,1055 @@
+/* ==========================================================================
+   product — the /product page: masthead, product card, gallery, selector,
+   buy panel and the specification sheet below the fold.
+
+   Everything here is scoped to `.rt-product` so the page's `rt-pgal__`,
+   `rt-sel__` and `rt-buy__` blocks can never reach a section on the landing
+   page. Colours, sizes, spacings, curves and durations are tokens only.
+   ========================================================================== */
+
+/* --- Masthead ------------------------------------------------------------ */
+
+.rt-product__lead {
+  padding-top: var(--rt-block);
+}
+
+.rt-product__masthead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-s-4);
+}
+
+.rt-product__crumb-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--rt-s-2);
+  color: var(--rt-text-3);
+}
+
+.rt-product__crumb-list > li + li::before {
+  content: '/';
+  margin-right: var(--rt-s-2);
+  color: var(--rt-line-2);
+}
+
+.rt-product__crumb-link {
+  transition: color var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-product__crumb-link:hover {
+  color: var(--rt-ember);
+}
+
+.rt-product__title-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  column-gap: var(--rt-block);
+  row-gap: var(--rt-s-4);
+}
+
+.rt-product__title-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-s-3);
+  min-width: 0;
+}
+
+.rt-product__tagline {
+  max-width: 42ch;
+}
+
+.rt-product__price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--rt-s-1);
+  text-align: right;
+}
+
+.rt-product__price-value {
+  font-family: var(--rt-display);
+  font-weight: 700;
+  font-size: var(--rt-fs-figure);
+  line-height: 0.9;
+  letter-spacing: -0.006em;
+  color: var(--rt-text);
+}
+
+.rt-product__price-unit {
+  color: var(--rt-text-3);
+}
+
+@media (max-width: 768px) {
+  .rt-product__title-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rt-product__price {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
+/* --- The card ------------------------------------------------------------
+   One object, two columns, divided by a single hairline. No shadow stack, no
+   pill radius — the card is machined, like the product in it. */
+
+.rt-product__card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
+  margin-top: var(--rt-block);
+  background: linear-gradient(168deg, var(--rt-panel-2) 0%, var(--rt-panel) 62%);
+  border: 1px solid var(--rt-line);
+  border-radius: var(--rt-r-lg);
+  /* Deliberately NOT `overflow: hidden` — the selector's listbox is absolutely
+     positioned and would be clipped by the card it opens inside. */
+}
+
+/* The ember hairline along the top edge is the same signature the shared card
+   uses on hover — here it is permanent, because this is the only card. It is
+   inset by the corner radius so it does not run past the rounded corners. */
+.rt-product__card::before {
+  content: '';
+  position: absolute;
+  inset: 0 var(--rt-r-lg) auto var(--rt-r-lg);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    var(--rt-ember),
+    var(--rt-sun) 46%,
+    transparent 78%
+  );
+}
+
+.rt-product__media,
+.rt-product__buy {
+  min-width: 0;
+  padding: var(--rt-card-pad);
+}
+
+/* The gallery is height-capped; the buy column grows with its content. Left
+   static, the media column simply ended and left up to 700px of dead ground
+   beside the buy box. Sticking it keeps the product beside whatever the
+   customer is reading, which is what the column is for. */
+@media (min-width: 901px) {
+  .rt-product__media {
+    position: sticky;
+    top: calc(var(--rt-header-h) + var(--rt-s-4));
+    align-self: start;
+  }
+}
+
+.rt-product__buy {
+  border-left: 1px solid var(--rt-line);
+}
+
+@media (max-width: 900px) {
+  .rt-product__card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rt-product__buy {
+    border-left: 0;
+    border-top: 1px solid var(--rt-line);
+  }
+}
+
+/* --- Gallery -------------------------------------------------------------
+   A vertical tablist beside a single portrait frame; a scroll-snapped
+   filmstrip beneath it below 1000px. All six photographs stay mounted and
+   crossfade on opacity, so switching view never reflows the card. */
+
+/* The gallery, the selector and the buy panel only ever exist inside the
+   product card. Anchoring their roots to `.rt-product` keeps the `rt-pgal__`,
+   `rt-sel__` and `rt-buy__` namespaces from reaching any other section. */
+.rt-product .rt-pgal {
+  /* One height budget drives the frame, the rail and the caption measure. */
+  --rt-pgal-h: min(64vh, 620px);
+  --rt-pgal-w: calc(var(--rt-pgal-h) * 4 / 5);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--rt-s-3);
+  align-items: start;
+}
+
+.rt-pgal__rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-s-2);
+  min-height: 0;
+  /* Room for the 2px focus ring at its 3px offset — the rail scrolls, so an
+     outline drawn at the edge would otherwise be clipped. */
+  padding: var(--rt-s-1);
+  max-height: var(--rt-pgal-h);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.rt-pgal__thumb {
+  position: relative;
+  flex: 0 0 auto;
+  width: clamp(52px, 4.6vw, 72px);
+  aspect-ratio: 4 / 5;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--rt-line);
+  border-radius: var(--rt-r-sm);
+  background: var(--rt-panel-2);
+  opacity: 0.52;
+  transition: opacity var(--rt-t-med) var(--rt-ease-out),
+    border-color var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-pgal__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 42%;
+  filter: brightness(0.66) contrast(1.06) saturate(0.9);
+  transition: filter var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-pgal__thumb:hover img,
+.rt-pgal__thumb.is-on img {
+  filter: brightness(0.9) contrast(1.04) saturate(1);
+}
+
+.rt-pgal__thumb:hover {
+  opacity: 0.82;
+  border-color: var(--rt-line-2);
+}
+
+.rt-pgal__thumb.is-on {
+  opacity: 1;
+  border-color: var(--rt-ember);
+}
+
+/* --- Stage --------------------------------------------------------------- */
+
+.rt-pgal__stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-s-3);
+  min-width: 0;
+}
+
+.rt-pgal__panel {
+  position: relative;
+  width: 100%;
+  max-width: var(--rt-pgal-w);
+  margin-inline: auto;
+}
+
+.rt-pgal__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  /* Four of the six photographs were shot against a light grey studio wall.
+     Feathering every edge dissolves them into the ink ground instead of
+     leaving a bright rectangle sitting on the card — but feathering alone only
+     softens the EDGES. The wall itself still reads as a lit panel on a
+     near-black page, so the exposure has to come down with it. */
+  --rt-feather: 17%;
+}
+
+.rt-pgal__shot {
+  position: absolute;
+  inset: 0;
+  object-position: 50% 44%;
+  opacity: 0;
+  filter: brightness(0.62) contrast(1.1) saturate(0.94);
+  transition: opacity var(--rt-t-med) var(--rt-ease-out),
+    filter var(--rt-t-med) var(--rt-ease-out);
+}
+
+/* The active shot lifts a little on hover — the photograph is the affordance
+   that says "there is more of this to look at". */
+.rt-pgal__frame:hover .rt-pgal__shot.is-on {
+  filter: brightness(0.74) contrast(1.08) saturate(0.97);
+}
+
+.rt-pgal__shot.is-on {
+  opacity: 1;
+}
+
+.rt-pgal__nav {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: var(--rt-hit);
+  height: var(--rt-hit);
+  color: var(--rt-text);
+  background: rgb(var(--rt-ink-rgb) / 0.52);
+  border: 1px solid var(--rt-line-2);
+  border-radius: var(--rt-r-pill);
+  transform: translateY(-50%);
+  transition: background-color var(--rt-t-med) var(--rt-ease-out),
+    border-color var(--rt-t-med) var(--rt-ease-out),
+    color var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-pgal__nav:hover {
+  color: var(--rt-on-ember);
+  background: var(--rt-ember);
+  border-color: var(--rt-ember);
+}
+
+.rt-pgal__nav--prev {
+  left: var(--rt-s-2);
+}
+
+.rt-pgal__nav--prev svg {
+  transform: rotate(180deg);
+}
+
+.rt-pgal__nav--next {
+  right: var(--rt-s-2);
+}
+
+.rt-pgal__count {
+  position: absolute;
+  right: var(--rt-s-3);
+  bottom: var(--rt-s-3);
+  color: var(--rt-text-2);
+}
+
+.rt-pgal__cap {
+  max-width: var(--rt-pgal-w);
+  margin-inline: auto;
+  font-size: var(--rt-fs-small);
+  line-height: 1.5;
+  color: var(--rt-text-2);
+  text-wrap: pretty;
+}
+
+@media (max-width: 1000px) {
+  .rt-product .rt-pgal {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rt-pgal__stage {
+    grid-row: 1;
+  }
+
+  .rt-pgal__rail {
+    grid-row: 2;
+    flex-direction: row;
+    max-height: none;
+    padding-block: 4px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+  }
+
+  .rt-pgal__thumb {
+    width: clamp(56px, 15vw, 76px);
+    scroll-snap-align: center;
+  }
+}
+
+/* --- Bike selector -------------------------------------------------------
+   Custom select-only comboboxes. Native selects cannot carry the second line
+   of context each step needs (brand platform, model year range) and cannot be
+   made to sit inside this hairline language on every platform. */
+
+.rt-product .rt-sel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-s-4);
+}
+
+.rt-sel__steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rt-s-2) var(--rt-s-4);
+}
+
+.rt-sel__step {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--rt-s-1);
+  font-family: var(--rt-mono);
+  font-weight: 500;
+  font-size: var(--rt-fs-mono-sm);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rt-text-3);
+  /* Was 0.55, which put un-reached steps at 2.66:1. `aria-hidden` keeps them
+     out of the a11y tree but they are still visible text. */
+  opacity: 0.85;
+  transition: opacity var(--rt-t-med) var(--rt-ease-out),
+    color var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-sel__step.is-done {
+  color: var(--rt-teal-hi);
+  opacity: 1;
+}
+
+.rt-sel__step.is-now {
+  color: var(--rt-ember);
+  opacity: 1;
+}
+
+.rt-sel__fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--rt-s-3);
+}
+
+.rt-sel__field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-s-1);
+  min-width: 0;
+}
+
+.rt-sel__label {
+  color: var(--rt-text-3);
+}
+
+.rt-sel__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rt-s-3);
+  width: 100%;
+  min-height: 54px;
+  padding: 0 var(--rt-s-3) 0 var(--rt-s-4);
+  font-family: var(--rt-body);
+  font-size: var(--rt-fs-body);
+  font-weight: 500;
+  text-align: left;
+  color: var(--rt-text-2);
+  background: rgb(var(--rt-ink-rgb) / 0.55);
+  border: 1px solid var(--rt-line-2);
+  border-radius: var(--rt-r-sm);
+  transition: border-color var(--rt-t-med) var(--rt-ease-out),
+    color var(--rt-t-med) var(--rt-ease-out),
+    background-color var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-sel__trigger:hover {
+  border-color: var(--rt-text-3);
+}
+
+.rt-sel__trigger.is-set {
+  color: var(--rt-text);
+  font-weight: 600;
+}
+
+.rt-sel__trigger.is-open {
+  border-color: var(--rt-ember);
+}
+
+.rt-sel__field.is-locked .rt-sel__trigger {
+  color: var(--rt-text-3);
+  border-color: var(--rt-line);
+  background: transparent;
+  cursor: not-allowed;
+}
+
+.rt-sel__field.is-locked .rt-sel__trigger:hover {
+  border-color: var(--rt-line);
+}
+
+.rt-sel__value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rt-sel__chevron {
+  flex-shrink: 0;
+  color: var(--rt-text-3);
+  transform: rotate(90deg);
+  transition: transform var(--rt-t-med) var(--rt-ease-out),
+    color var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-sel__trigger.is-open .rt-sel__chevron {
+  color: var(--rt-ember);
+  transform: rotate(-90deg);
+}
+
+.rt-sel__list {
+  position: absolute;
+  top: calc(100% + var(--rt-s-1));
+  left: 0;
+  right: 0;
+  z-index: var(--rt-z-sticky);
+  max-height: 264px;
+  overflow-y: auto;
+  padding: var(--rt-s-1);
+  background: var(--rt-panel-2);
+  border: 1px solid var(--rt-line-2);
+  border-radius: var(--rt-r-sm);
+  box-shadow: var(--rt-shadow);
+  /* visibility, not display: it stays mounted so `aria-controls` resolves,
+     and `hidden` visibility also removes it from the accessibility tree. */
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity var(--rt-t-fast) var(--rt-ease-out),
+    transform var(--rt-t-fast) var(--rt-ease-out),
+    visibility var(--rt-t-fast) var(--rt-ease-out);
+}
+
+.rt-sel__list.is-open {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+}
+
+.rt-sel__opt {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--rt-s-3);
+  min-height: var(--rt-hit);
+  padding: var(--rt-s-2) var(--rt-s-3);
+  border-radius: var(--rt-r-xs);
+  color: var(--rt-text-2);
+  cursor: pointer;
+}
+
+.rt-sel__opt.is-active {
+  color: var(--rt-text);
+  background: rgb(var(--rt-ink-rgb) / 0.55);
+}
+
+.rt-sel__opt[aria-selected='true'] {
+  color: var(--rt-text);
+  box-shadow: inset 2px 0 0 0 var(--rt-ember);
+}
+
+.rt-sel__opt-label {
+  font-weight: 500;
+}
+
+.rt-sel__opt-hint {
+  flex-shrink: 0;
+  color: var(--rt-text-3);
+}
+
+/* --- Resolved configuration ---------------------------------------------- */
+
+.rt-sel__result {
+  min-height: 0;
+}
+
+.rt-sel__fit,
+.rt-sel__nofit {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--rt-s-2);
+  padding: var(--rt-s-4);
+  border: 1px solid var(--rt-line-teal);
+  border-radius: var(--rt-r-sm);
+  background: var(--rt-teal-dim);
+}
+
+.rt-sel__nofit {
+  border-color: var(--rt-line-ember);
+  background: rgb(var(--rt-ink-rgb) / 0.4);
+}
+
+.rt-sel__fit-head {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rt-s-2);
+}
+
+.rt-sel__bike {
+  font-family: var(--rt-display);
+  font-weight: 600;
+  font-size: var(--rt-fs-h4);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--rt-text);
+}
+
+.rt-sel__note {
+  font-size: var(--rt-fs-small);
+  line-height: 1.5;
+  color: var(--rt-text-2);
+  max-width: var(--rt-maxw-text);
+}
+
+.rt-sel__kit {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--rt-s-1) var(--rt-s-3);
+  width: 100%;
+  margin-top: var(--rt-s-1);
+  padding-top: var(--rt-s-2);
+  border-top: 1px solid var(--rt-line);
+}
+
+.rt-sel__kit-label {
+  color: var(--rt-text-3);
+}
+
+.rt-sel__kit-code {
+  margin: 0;
+  font-family: var(--rt-mono);
+  font-weight: 500;
+  font-size: var(--rt-fs-mono);
+  letter-spacing: 0.08em;
+  color: var(--rt-teal-hi);
+  overflow-wrap: anywhere;
+}
+
+.rt-sel__pending {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-s-2);
+  width: 100%;
+}
+
+.rt-sel__pending-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--rt-s-2);
+}
+
+.rt-sel__pending-text {
+  font-size: var(--rt-fs-small);
+  line-height: 1.45;
+  color: var(--rt-text-3);
+}
+
+.rt-sel__prompt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-s-1);
+  padding: var(--rt-s-4);
+  border: 1px dashed var(--rt-line-2);
+  border-radius: var(--rt-r-sm);
+}
+
+.rt-sel__prompt-text {
+  font-family: var(--rt-display);
+  font-weight: 600;
+  font-size: var(--rt-fs-h4);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--rt-text);
+}
+
+.rt-sel__prompt-sub {
+  font-size: var(--rt-fs-small);
+  line-height: 1.5;
+  color: var(--rt-text-2);
+}
+
+/* --- Buy panel ----------------------------------------------------------- */
+
+.rt-product .rt-buy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-s-4);
+}
+
+.rt-buy__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rt-s-3);
+}
+
+.rt-buy__price {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--rt-s-2);
+}
+
+.rt-buy__amount {
+  font-family: var(--rt-display);
+  font-weight: 700;
+  font-size: var(--rt-fs-figure);
+  line-height: 0.9;
+  letter-spacing: -0.006em;
+  color: var(--rt-text);
+}
+
+.rt-buy__currency {
+  color: var(--rt-text-3);
+}
+
+.rt-buy__avail {
+  white-space: normal;
+}
+
+.rt-buy__sku {
+  margin-top: calc(-1 * var(--rt-s-3));
+  color: var(--rt-text-3);
+}
+
+.rt-buy__rule {
+  margin-block: calc(-1 * var(--rt-s-1));
+}
+
+.rt-buy__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--rt-s-4);
+}
+
+.rt-buy__qty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-s-1);
+}
+
+.rt-buy__qty-label {
+  color: var(--rt-text-3);
+}
+
+.rt-buy__stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--rt-line-2);
+  border-radius: var(--rt-r-sm);
+}
+
+.rt-buy__step {
+  display: grid;
+  place-items: center;
+  width: var(--rt-hit);
+  height: var(--rt-hit);
+  font-family: var(--rt-body);
+  font-size: var(--rt-fs-lede);
+  font-weight: 500;
+  color: var(--rt-text);
+  transition: color var(--rt-t-med) var(--rt-ease-out),
+    background-color var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-buy__step:hover {
+  background: rgb(var(--rt-ink-rgb) / 0.5);
+  color: var(--rt-ember);
+}
+
+.rt-buy__step[aria-disabled='true'] {
+  color: var(--rt-text-3);
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.rt-buy__step[aria-disabled='true']:hover {
+  background: none;
+  color: var(--rt-text-3);
+}
+
+.rt-buy__count {
+  min-width: 2.5ch;
+  padding-inline: var(--rt-s-1);
+  font-family: var(--rt-mono);
+  font-weight: 500;
+  font-size: var(--rt-fs-body);
+  text-align: center;
+  color: var(--rt-text);
+  border-inline: 1px solid var(--rt-line);
+  align-self: stretch;
+  display: grid;
+  place-items: center;
+}
+
+.rt-buy__total {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--rt-s-1);
+  text-align: right;
+}
+
+.rt-buy__total-label {
+  color: var(--rt-text-3);
+}
+
+.rt-buy__total-value {
+  font-family: var(--rt-display);
+  font-weight: 600;
+  font-size: var(--rt-fs-h3);
+  line-height: 1;
+  color: var(--rt-text);
+}
+
+.rt-buy__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-s-3);
+}
+
+.rt-buy__gate {
+  display: flex;
+  align-items: center;
+  gap: var(--rt-s-2);
+  font-size: var(--rt-fs-small);
+  line-height: 1.4;
+  color: var(--rt-text-2);
+}
+
+.rt-buy__gate::before {
+  content: '';
+  width: 18px;
+  height: 1px;
+  flex-shrink: 0;
+  background: var(--rt-ember);
+}
+
+.rt-buy__error {
+  padding: var(--rt-s-3) var(--rt-s-4);
+  font-size: var(--rt-fs-small);
+  line-height: 1.5;
+  color: var(--rt-ember-hi);
+  border: 1px solid var(--rt-line-ember);
+  border-radius: var(--rt-r-sm);
+}
+
+.rt-buy__done {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-s-3);
+  padding: var(--rt-s-4);
+  border: 1px solid var(--rt-line-teal);
+  border-radius: var(--rt-r-sm);
+  background: var(--rt-teal-dim);
+}
+
+.rt-buy__done-text {
+  display: flex;
+  align-items: baseline;
+  gap: var(--rt-s-2);
+  font-size: var(--rt-fs-small);
+  line-height: 1.5;
+  color: var(--rt-text);
+}
+
+.rt-buy__assurances {
+  border-top: 1px solid var(--rt-line);
+}
+
+.rt-buy__assure-link {
+  display: flex;
+  align-items: center;
+  gap: var(--rt-s-3);
+  min-height: var(--rt-hit);
+  padding-block: var(--rt-s-2);
+  font-size: var(--rt-fs-small);
+  color: var(--rt-text-2);
+  transition: color var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-buy__assure-link svg {
+  flex-shrink: 0;
+  color: var(--rt-teal-hi);
+}
+
+.rt-buy__assure-label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.rt-buy__assure-chevron {
+  color: var(--rt-text-3);
+  transition: transform var(--rt-t-med) var(--rt-ease-out);
+}
+
+a.rt-buy__assure-link:hover {
+  color: var(--rt-text);
+}
+
+a.rt-buy__assure-link:hover .rt-buy__assure-chevron {
+  transform: translateX(3px);
+}
+
+/* --- Detail: description + stats ----------------------------------------- */
+
+.rt-product__intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: var(--rt-block);
+  align-items: start;
+  margin-top: var(--rt-block);
+}
+
+.rt-product__stats {
+  border-top: 1px solid var(--rt-line);
+}
+
+.rt-product__stat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--rt-s-4);
+  padding-block: var(--rt-s-3);
+}
+
+.rt-product__stat-figure {
+  font-family: var(--rt-display);
+  font-weight: 700;
+  font-size: var(--rt-fs-h3);
+  line-height: 1;
+  color: var(--rt-text);
+}
+
+.rt-product__stat-unit {
+  margin-left: 0.12em;
+  font-size: var(--rt-fs-mono);
+  color: var(--rt-teal-hi);
+}
+
+.rt-product__stat-label {
+  text-align: right;
+  color: var(--rt-text-3);
+}
+
+.rt-product__heroes {
+  margin-top: var(--rt-block-lg);
+}
+
+.rt-product__feature {
+  height: 100%;
+}
+
+.rt-product__feature-spec {
+  margin-top: auto;
+  padding-top: var(--rt-s-2);
+}
+
+@media (max-width: 1000px) {
+  .rt-product__intro {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* --- Detail: supporting features + materials ----------------------------- */
+
+.rt-product__support {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--rt-block);
+}
+
+.rt-product__line {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--rt-s-2) var(--rt-s-4);
+  padding-block: var(--rt-s-4);
+  border-top: 1px solid var(--rt-line);
+}
+
+.rt-product__line-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: var(--rt-teal-hi);
+}
+
+.rt-product__line-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-s-1);
+  min-width: 0;
+}
+
+.rt-product__line-spec {
+  grid-column: 2;
+  color: var(--rt-text-3);
+}
+
+.rt-product__materials {
+  margin-top: var(--rt-block-lg);
+}
+
+.rt-product__sub {
+  margin-bottom: var(--rt-s-4);
+  color: var(--rt-text-3);
+}
+
+@media (max-width: 900px) {
+  .rt-product__support {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* --- In the box ---------------------------------------------------------- */
+
+.rt-product__box-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--rt-block);
+  margin-top: var(--rt-block);
+}
+
+/* `.rt-stack-ruled` rules every row; in two columns the first row of the
+   second column would lose its rule, so every item carries its own. */
+.rt-product__box-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--rt-s-4);
+  padding-block: var(--rt-s-3);
+  border-top: 1px solid var(--rt-line);
+}
+
+.rt-product__box-n {
+  color: var(--rt-text-3);
+}
+
+.rt-product__box-text {
+  color: var(--rt-text-2);
+  text-wrap: pretty;
+}
+
+@media (max-width: 768px) {
+  .rt-product__box-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* --- Narrow ---------------------------------------------------------------
+   At 560px and below the card padding, the gallery height budget and the buy
+   row all have to give, or the frame eats the whole screen before the price
+   is reached. */
+
+@media (max-width: 560px) {
+  .rt-product__media,
+  .rt-product__buy {
+    padding: var(--rt-s-4);
+  }
+
+  .rt-product .rt-pgal {
+    --rt-pgal-h: min(56vh, 460px);
+  }
+
+  .rt-buy__row {
+    align-items: flex-start;
+  }
+
+  .rt-buy__total {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .rt-sel__opt {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--rt-s-1);
+    justify-content: center;
+  }
+}

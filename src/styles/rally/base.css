@@ -1,0 +1,1123 @@
+/* ==========================================================================
+   Rally Tower — shared visual language
+
+   Every section on the page is built from the primitives in this file.
+   If a section needs a button, a card, an eyebrow, a rule or a reveal, it uses
+   these — never a local re-implementation. That is what keeps the page
+   reading as one deliberate design instead of a stack of components.
+   ========================================================================== */
+
+/* --- Page shell ---------------------------------------------------------- */
+
+.rt-page {
+  background: var(--rt-ink);
+  color: var(--rt-text);
+  font-family: var(--rt-body);
+  font-size: var(--rt-fs-body);
+  line-height: 1.65;
+  overflow-x: clip;
+  /* Anchor for the page-wide grain overlay. */
+  position: relative;
+  isolation: isolate;
+}
+
+/* Keep anchors, scrollIntoView and scroll-into-view-on-focus clear of the two
+   fixed bars. Without this, jumping to a section tucks its eyebrow and the top
+   of its heading under the nav, and tabbing to a control near the fold parks
+   the focus ring behind the purchase bar (WCAG 2.2 SC 2.4.11). */
+:root:has(.rt-page) {
+  scroll-padding-top: calc(var(--rt-header-h) + var(--rt-s-4));
+  scroll-padding-bottom: calc(var(--rt-buybar-h) + var(--rt-s-4));
+}
+
+.rt-page ::selection {
+  background: var(--rt-ember);
+  color: var(--rt-on-ember);
+}
+
+.rt-page :focus-visible {
+  outline: 2px solid var(--rt-ember-hi);
+  outline-offset: 3px;
+  border-radius: var(--rt-r-sm);
+}
+
+/* A single film-grain plate over the whole page. Ties the photographic and
+   vector parts of the design together and stops large flat areas from
+   banding. Cheap: one repeating 160px tile, no animation. */
+.rt-grain {
+  position: fixed;
+  inset: 0;
+  z-index: var(--rt-z-grain);
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* --- Layout -------------------------------------------------------------- */
+
+.rt-container {
+  width: 100%;
+  max-width: var(--rt-maxw);
+  margin-inline: auto;
+  padding-inline: var(--rt-gutter);
+}
+
+.rt-container--narrow {
+  max-width: var(--rt-maxw-narrow);
+}
+
+.rt-container--wide {
+  max-width: 1620px;
+}
+
+.rt-section {
+  position: relative;
+  padding-block: var(--rt-section-y);
+}
+
+.rt-section--sm {
+  padding-block: var(--rt-section-y-sm);
+}
+
+.rt-section--flush-top {
+  padding-top: 0;
+}
+
+.rt-section--flush-bottom {
+  padding-bottom: 0;
+}
+
+/* Light section — bone paper.
+   Re-pointing the semantic text and line tokens here is what makes every
+   primitive (cards, chips, rules, dividers, buttons) correct on the light
+   ground without each one needing a bone-specific override. A section that
+   reaches for --rt-text-2 on bone still gets a readable colour. */
+.rt-section--bone {
+  background: var(--rt-bone);
+  color: var(--rt-bone-ink);
+
+  --rt-text: var(--rt-bone-ink);
+  --rt-text-2: var(--rt-bone-ink-2);
+  --rt-text-3: var(--rt-bone-ink-3);
+  --rt-line: var(--rt-line-bone);
+  --rt-line-2: var(--rt-line-bone-2);
+  --rt-shadow: 0 18px 48px -18px rgba(20, 18, 14, 0.3);
+  --rt-shadow-lg: 0 42px 90px -30px rgba(20, 18, 14, 0.34);
+}
+
+.rt-section--panel {
+  background: var(--rt-panel);
+}
+
+/* Section heading block — used verbatim by every section for vertical rhythm. */
+.rt-head {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 1.6vw, 22px);
+  max-width: 24ch;
+}
+
+.rt-head--wide {
+  max-width: 34ch;
+}
+
+.rt-head--center {
+  margin-inline: auto;
+  text-align: center;
+  align-items: center;
+}
+
+/* Full-width section heads only. On a wide screen a single narrow column of
+   heading leaves a thousand pixels of empty ground beside it — the layout
+   stops using the width it was given. Splitting heading and lede across two
+   columns fills the measure without enlarging the type. Opt-in, because the
+   heads that sit inside a two-column section must stay in their column. */
+@media (min-width: 1200px) {
+  .rt-head--split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    align-items: end;
+    column-gap: clamp(48px, 6vw, 120px);
+    row-gap: clamp(14px, 1.6vw, 22px);
+    max-width: none;
+  }
+
+  .rt-head--split > .rt-eyebrow {
+    grid-column: 1 / -1;
+  }
+
+  .rt-head--split > .rt-lede {
+    max-width: 44ch;
+    padding-bottom: 0.35em;
+  }
+}
+
+.rt-head + .rt-body-copy,
+.rt-head + * {
+  margin-top: var(--rt-block);
+}
+
+/* --- Typography ---------------------------------------------------------- */
+
+/* `color` is set explicitly, not inherited: the site-wide global.css styles
+   `h1, h2, h3, h4 { color: var(--text-hi) }` with an element selector, which
+   beats inheritance from `.rt-section--bone` and renders every heading on the
+   light sections near-white on cream. A class selector wins, and because
+   --rt-text is re-pointed inside bone scope this stays correct on both grounds. */
+.rt-display,
+.rt-h1,
+.rt-h2,
+.rt-h3 {
+  font-family: var(--rt-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  text-wrap: balance;
+  color: var(--rt-text);
+  margin: 0;
+}
+
+.rt-display {
+  font-size: var(--rt-fs-display);
+  line-height: 0.84;
+  letter-spacing: -0.012em;
+}
+
+.rt-h1 {
+  font-size: var(--rt-fs-h1);
+  line-height: 0.88;
+  letter-spacing: -0.008em;
+}
+
+.rt-h2 {
+  font-size: var(--rt-fs-h2);
+  line-height: 0.92;
+  letter-spacing: -0.004em;
+}
+
+.rt-h3 {
+  font-size: var(--rt-fs-h3);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: 0.002em;
+}
+
+/* Sentence-case display type for editorial moments where all-caps would shout. */
+.rt-display--sentence,
+.rt-h1--sentence,
+.rt-h2--sentence {
+  text-transform: none;
+  letter-spacing: -0.018em;
+}
+
+.rt-h4 {
+  font-family: var(--rt-body);
+  font-size: var(--rt-fs-h4);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.006em;
+  color: var(--rt-text);
+  margin: 0;
+}
+
+.rt-lede {
+  font-size: var(--rt-fs-lede);
+  line-height: 1.58;
+  color: var(--rt-text-2);
+  max-width: var(--rt-maxw-text);
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.rt-body-copy {
+  color: var(--rt-text-2);
+  max-width: var(--rt-maxw-text);
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.rt-body-copy + .rt-body-copy {
+  margin-top: 1em;
+}
+
+.rt-section--bone .rt-lede,
+.rt-section--bone .rt-body-copy {
+  color: var(--rt-bone-ink-2);
+}
+
+/* Eyebrow — mono, wide-tracked, with a short ember tick. The tick draws itself
+   in when the eyebrow reveals, which is the page's smallest motion signature. */
+.rt-eyebrow {
+  display: inline-flex;
+  /* Top-aligned, not centre: when the label wraps to two or three lines on a
+     phone, a centred tick floats in the gap between lines and reads as an
+     accident. The margin drops it onto the optical centre of the FIRST line. */
+  align-items: flex-start;
+  gap: 12px;
+  font-family: var(--rt-mono);
+  font-weight: 500;
+  font-size: var(--rt-fs-mono);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--rt-ember);
+  margin: 0;
+}
+
+.rt-eyebrow::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  margin-top: 0.62em;
+  background: currentColor;
+  transform-origin: left;
+  transform: scaleX(var(--rt-tick, 1));
+  transition: transform var(--rt-t-slow) var(--rt-ease-out)
+    calc(var(--rt-stagger) * 2);
+}
+
+.rt-eyebrow--center::before {
+  display: none;
+}
+
+.rt-reveal:not(.is-in) .rt-eyebrow {
+  --rt-tick: 0;
+}
+
+.rt-section--bone .rt-eyebrow {
+  color: var(--rt-ember-deep);
+}
+
+@media (max-width: 560px) {
+  .rt-eyebrow {
+    letter-spacing: 0.2em;
+    gap: 9px;
+  }
+
+  .rt-eyebrow::before {
+    width: 18px;
+  }
+}
+
+/* Mono utility — spec read-outs, coordinates, counters. */
+.rt-mono {
+  font-family: var(--rt-mono);
+  font-weight: 500;
+  font-size: var(--rt-fs-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rt-text-3);
+}
+
+.rt-mono--teal {
+  color: var(--rt-teal-hi);
+}
+
+.rt-mono--ember {
+  color: var(--rt-ember);
+}
+
+.rt-section--bone .rt-mono {
+  color: var(--rt-bone-ink-2);
+}
+
+/* --- Rules & dividers ---------------------------------------------------- */
+
+.rt-rule {
+  border: 0;
+  height: 1px;
+  background: var(--rt-line);
+  margin: 0;
+}
+
+.rt-rule--fade {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--rt-line-2) 12%,
+    var(--rt-line-2) 88%,
+    transparent
+  );
+}
+
+/* Rule that draws itself left-to-right on reveal. */
+.rt-rule--draw {
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform var(--rt-t-slow) var(--rt-ease-out);
+}
+
+.is-in .rt-rule--draw,
+.rt-rule--draw.is-in {
+  transform: scaleX(1);
+}
+
+/* --- Buttons ------------------------------------------------------------- */
+
+.rt-btn {
+  --rt-btn-bg: transparent;
+  --rt-btn-fg: var(--rt-text);
+  --rt-btn-line: var(--rt-line-2);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 0 clamp(20px, 2.2vw, 30px);
+  font-family: var(--rt-display);
+  font-weight: 600;
+  font-size: 1.06rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--rt-btn-fg);
+  background: var(--rt-btn-bg);
+  border: 1px solid var(--rt-btn-line);
+  border-radius: var(--rt-r-sm);
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  transition: color var(--rt-t-med) var(--rt-ease-out),
+    border-color var(--rt-t-med) var(--rt-ease-out),
+    background-color var(--rt-t-med) var(--rt-ease-out),
+    transform var(--rt-t-tap) var(--rt-ease-out),
+    box-shadow var(--rt-t-med) var(--rt-ease-out);
+}
+
+/* The shared hover signature: a fill that wipes up from the bottom edge.
+   Every button on the page uses it, which is why hovers feel like one system. */
+.rt-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--rt-btn-wipe, var(--rt-ember-hi));
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-btn:hover::before,
+.rt-btn:focus-visible::before {
+  transform: scaleY(1);
+}
+
+.rt-btn:active {
+  transform: translateY(1px);
+}
+
+.rt-btn:disabled,
+.rt-btn[aria-disabled='true'] {
+  opacity: 0.42;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.rt-btn:disabled::before,
+.rt-btn[aria-disabled='true']::before {
+  transform: scaleY(0);
+}
+
+.rt-btn__icon {
+  flex-shrink: 0;
+  transition: transform var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-btn:hover .rt-btn__icon {
+  transform: translateX(3px);
+}
+
+/* Primary — ember fill, the only element on the page allowed this weight. */
+.rt-btn--primary {
+  --rt-btn-bg: var(--rt-ember-fill);
+  --rt-btn-fg: var(--rt-on-ember);
+  --rt-btn-line: var(--rt-ember-fill);
+  --rt-btn-wipe: var(--rt-ember);
+  box-shadow: 0 10px 34px -14px rgba(226, 87, 30, 0.7);
+}
+
+.rt-btn--primary:hover,
+.rt-btn--primary:focus-visible {
+  --rt-btn-line: var(--rt-ember);
+  box-shadow: 0 16px 44px -14px rgba(255, 116, 51, 0.72);
+}
+
+/* Secondary — hairline outline that fills with bone on hover. */
+.rt-btn--secondary {
+  --rt-btn-wipe: var(--rt-bone);
+}
+
+.rt-btn--secondary:hover,
+.rt-btn--secondary:focus-visible {
+  --rt-btn-fg: var(--rt-bone-ink);
+  --rt-btn-line: var(--rt-bone);
+}
+
+/* On bone sections. */
+.rt-section--bone .rt-btn--secondary {
+  --rt-btn-fg: var(--rt-bone-ink);
+  --rt-btn-line: rgba(20, 18, 14, 0.28);
+  --rt-btn-wipe: var(--rt-bone-ink);
+}
+
+.rt-section--bone .rt-btn--secondary:hover,
+.rt-section--bone .rt-btn--secondary:focus-visible {
+  --rt-btn-fg: var(--rt-bone);
+  --rt-btn-line: var(--rt-bone-ink);
+}
+
+/* Glass — for use over photography. */
+.rt-btn--glass {
+  --rt-btn-bg: rgba(12, 12, 13, 0.42);
+  --rt-btn-line: rgba(236, 227, 210, 0.32);
+  --rt-btn-wipe: var(--rt-bone);
+  backdrop-filter: blur(10px) saturate(1.2);
+}
+
+.rt-btn--glass:hover,
+.rt-btn--glass:focus-visible {
+  --rt-btn-fg: var(--rt-bone-ink);
+  --rt-btn-line: var(--rt-bone);
+}
+
+.rt-btn--sm {
+  min-height: 44px;
+  font-size: 0.96rem;
+  padding-inline: 18px;
+}
+
+.rt-btn--block {
+  width: 100%;
+}
+
+/* Text link with a sliding underline + arrow. */
+.rt-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--rt-mono);
+  font-weight: 500;
+  font-size: var(--rt-fs-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rt-ember);
+  background: none;
+  border: 0;
+  padding: 4px 0;
+  cursor: pointer;
+  position: relative;
+  transition: color var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-link:hover::after,
+.rt-link:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.rt-link:hover {
+  color: var(--rt-ember-hi);
+}
+
+.rt-link svg {
+  transition: transform var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-link:hover svg {
+  transform: translateX(3px);
+}
+
+/* Bone rules come last so the hover state is not shadowed by the equal-specificity
+   `.rt-link:hover` above. */
+.rt-section--bone .rt-link {
+  color: var(--rt-ember-deep);
+}
+
+.rt-section--bone .rt-link:hover,
+.rt-section--bone .rt-link:focus-visible {
+  color: var(--rt-ember);
+}
+
+/* Quiet link — secondary navigation rather than an action. Ember is the action
+   colour, so a link that merely moves you sideways (change this, continue
+   shopping, read the policy) should not wear it. Declared here so the intent is
+   named and shared, instead of each section re-colouring `.rt-link` locally and
+   drifting into three different treatments. */
+.rt-link--quiet {
+  color: var(--rt-text-2);
+}
+
+.rt-link--quiet:hover,
+.rt-link--quiet:focus-visible {
+  color: var(--rt-text);
+}
+
+.rt-section--bone .rt-link--quiet {
+  color: var(--rt-bone-ink-2);
+}
+
+.rt-section--bone .rt-link--quiet:hover,
+.rt-section--bone .rt-link--quiet:focus-visible {
+  color: var(--rt-bone-ink);
+}
+
+/* Link with a comfortable touch target. The sliding underline is re-anchored to
+   the text baseline so the padding does not detach it. */
+.rt-link--hit {
+  padding-block: 12px;
+}
+
+.rt-link--hit::after {
+  bottom: 12px;
+}
+
+/* --- Divided inline list -------------------------------------------------
+   An inline row of links/labels with wrap-safe hairline separators. Separators
+   trail their own item, so a wrapped row never starts with one. Below the
+   stack breakpoint it becomes a vertical list with horizontal rules. */
+
+.rt-divided {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 clamp(14px, 1.4vw, 22px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rt-divided > li {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(14px, 1.4vw, 22px);
+}
+
+.rt-divided > li:not(:last-child)::after {
+  content: '';
+  width: 1px;
+  height: 14px;
+  background: var(--rt-line-2);
+}
+
+.rt-section--bone .rt-divided > li:not(:last-child)::after {
+  background: rgba(20, 18, 14, 0.2);
+}
+
+@media (max-width: 560px) {
+  .rt-divided {
+    display: block;
+  }
+
+  .rt-divided > li {
+    display: flex;
+    width: 100%;
+    border-top: 1px solid var(--rt-line);
+  }
+
+  .rt-divided > li:first-child {
+    border-top: 0;
+  }
+
+  .rt-divided > li:not(:last-child)::after {
+    display: none;
+  }
+}
+
+/* --- Surfaces ------------------------------------------------------------ */
+
+.rt-panel {
+  position: relative;
+  background: var(--rt-panel);
+  border: 1px solid var(--rt-line);
+  border-radius: var(--rt-r-md);
+}
+
+/* Card — the shared container for features, trust blocks, spec groups. */
+.rt-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: var(--rt-card-pad);
+  background: linear-gradient(
+    170deg,
+    var(--rt-panel-2) 0%,
+    var(--rt-panel) 62%
+  );
+  border: 1px solid var(--rt-line);
+  border-radius: var(--rt-r-md);
+  overflow: hidden;
+  isolation: isolate;
+  transition: border-color var(--rt-t-med) var(--rt-ease-out),
+    transform var(--rt-t-med) var(--rt-ease-out),
+    box-shadow var(--rt-t-med) var(--rt-ease-out);
+}
+
+/* Shared card hover: a hairline ember top-edge wipes in and the card lifts. */
+.rt-card::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    var(--rt-ember),
+    var(--rt-sun) 60%,
+    transparent
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--rt-t-slow) var(--rt-ease-out);
+}
+
+.rt-card--interactive:hover,
+.rt-card--interactive:focus-within {
+  border-color: var(--rt-line-2);
+  transform: translateY(-3px);
+  box-shadow: var(--rt-shadow);
+}
+
+.rt-card--interactive:hover::after,
+.rt-card--interactive:focus-within::after {
+  transform: scaleX(1);
+}
+
+.rt-section--bone .rt-card {
+  background: linear-gradient(170deg, var(--rt-bone-hi) 0%, var(--rt-bone) 70%);
+  border-color: rgba(20, 18, 14, 0.12);
+}
+
+/* Icon plate used inside cards. */
+/* Icon plates are TEAL, not ember.
+   The system reserves ember for action and the brand tick; teal carries
+   technical information. With ember on the plates, a single viewport carried
+   the nav CTA, the buy-bar CTA, the eyebrow and four icon plates — seven
+   ember elements, at which point the colour stops signifying anything. */
+.rt-icon-plate {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  color: var(--rt-teal-hi);
+  background: var(--rt-teal-dim);
+  border: 1px solid var(--rt-line-teal);
+  border-radius: var(--rt-r-sm);
+  transition: background var(--rt-t-med) var(--rt-ease-out),
+    color var(--rt-t-med) var(--rt-ease-out),
+    border-color var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-card--interactive:hover .rt-icon-plate {
+  background: rgba(53, 168, 164, 0.2);
+  border-color: var(--rt-teal-hi);
+}
+
+/* Kept as an explicit opt-in for the rare plate that marks an action. */
+.rt-icon-plate--ember {
+  color: var(--rt-ember);
+  background: rgba(226, 87, 30, 0.09);
+  border-color: var(--rt-line-ember);
+}
+
+.rt-icon-plate--teal {
+  color: var(--rt-teal-hi);
+  background: var(--rt-teal-dim);
+  border-color: var(--rt-line-teal);
+}
+
+/* --- Chips / tags -------------------------------------------------------- */
+
+.rt-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px;
+  font-family: var(--rt-mono);
+  font-weight: 500;
+  font-size: var(--rt-fs-mono-sm);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rt-text-2);
+  background: rgba(236, 227, 210, 0.05);
+  border: 1px solid var(--rt-line);
+  border-radius: var(--rt-r-pill);
+  white-space: nowrap;
+}
+
+.rt-chip--ember {
+  color: var(--rt-ember);
+  background: rgba(226, 87, 30, 0.1);
+  border-color: var(--rt-line-ember);
+}
+
+.rt-chip--teal {
+  color: var(--rt-teal-hi);
+  background: var(--rt-teal-dim);
+  border-color: var(--rt-line-teal);
+}
+
+.rt-chip__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* --- Media --------------------------------------------------------------- */
+
+.rt-media {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--rt-r-md);
+  background: var(--rt-panel);
+}
+
+.rt-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Feathered media — for the studio shots, which were photographed against a
+   light grey wall. The mask dissolves the frame edges into the ink ground so
+   the photograph resolves out of the page instead of sitting on it as a bright
+   rectangle. Adjust the falloff per section with --rt-feather. */
+.rt-media--feather {
+  border-radius: 0;
+  background: transparent;
+  /* Crossed linear ramps, intersected. A single radial mask only feathers the
+     edges when its radii sit inside the box — easy to get wrong, and it fails
+     silently by leaving a hard-edged rectangle. This works at any aspect. */
+  -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      #000 var(--rt-feather, 11%),
+      #000 calc(100% - var(--rt-feather, 11%)),
+      transparent 100%
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      #000 var(--rt-feather, 11%),
+      #000 calc(100% - var(--rt-feather, 11%)),
+      transparent 100%
+    );
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      #000 var(--rt-feather, 11%),
+      #000 calc(100% - var(--rt-feather, 11%)),
+      transparent 100%
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      #000 var(--rt-feather, 11%),
+      #000 calc(100% - var(--rt-feather, 11%)),
+      transparent 100%
+    );
+  mask-composite: intersect;
+}
+
+/* Hairline-ruled stack — rows separated by a rule rather than boxed. Used by
+   the spec lists, assurance rows and support-feature lists. */
+.rt-stack-ruled > * + * {
+  border-top: 1px solid var(--rt-line);
+}
+
+/* Slow ken-burns drift used on editorial imagery. Paused for reduced motion
+   via the global override at the bottom of this file. */
+.rt-media--drift img {
+  transform: scale(1.06);
+  transition: transform var(--rt-t-drift) var(--rt-ease-out);
+}
+
+.rt-media--drift.is-in img,
+.is-in .rt-media--drift img {
+  transform: scale(1);
+}
+
+/* --- Scrims ---------------------------------------------------------------
+   Type over photography needs a ground. These are the page's four standard
+   treatments — every full-bleed section uses them so the darkening is
+   consistent instead of each section picking its own alpha. Compose them by
+   stacking multiple elements, or by adding modifiers to one. */
+
+.rt-scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.rt-scrim--bottom {
+  background: linear-gradient(
+    to top,
+    rgb(var(--rt-ink-rgb) / 0.94) 0%,
+    rgb(var(--rt-ink-rgb) / 0.72) 26%,
+    rgb(var(--rt-ink-rgb) / 0.18) 58%,
+    transparent 78%
+  );
+}
+
+.rt-scrim--left {
+  background: linear-gradient(
+    to right,
+    rgb(var(--rt-ink-rgb) / 0.78) 0%,
+    rgb(var(--rt-ink-rgb) / 0.34) 34%,
+    transparent 62%
+  );
+}
+
+.rt-scrim--top {
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--rt-ink-rgb) / 0.72) 0%,
+    transparent 34%
+  );
+}
+
+.rt-scrim--vignette {
+  background: radial-gradient(
+    120% 90% at 50% 42%,
+    transparent 38%,
+    rgb(var(--rt-ink-rgb) / 0.5) 100%
+  );
+}
+
+/* Flat wash, driven by a --rt-veil custom property so a scroll-scrubbed scene
+   can lighten it as the section opens up. */
+.rt-scrim--veil {
+  background: rgb(var(--rt-ink-rgb) / var(--rt-veil, 0.4));
+}
+
+/* --- Off-screen chrome ---------------------------------------------------- */
+
+.rt-glass {
+  background: var(--rt-glass-bg);
+  backdrop-filter: var(--rt-glass-blur);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .rt-glass {
+    background: var(--rt-ink);
+  }
+}
+
+/* --- Status dot ----------------------------------------------------------- */
+
+.rt-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--rt-ember);
+  flex-shrink: 0;
+}
+
+.rt-dot--teal {
+  background: var(--rt-teal-hi);
+}
+
+/* --- Reveal signatures ---------------------------------------------------
+   One transition duration, one curve, one delay variable. Sections stagger by
+   passing `delay` to <Reveal>, never by inventing new timings. */
+
+.rt-reveal {
+  --rt-delay: 0ms;
+  transition-delay: var(--rt-delay);
+  transition-timing-function: var(--rt-ease-out);
+  transition-duration: var(--rt-t-reveal);
+  will-change: opacity, transform;
+}
+
+.rt-reveal--up {
+  opacity: 0;
+  transform: translate3d(0, 34px, 0);
+  transition-property: opacity, transform;
+}
+
+.rt-reveal--fade {
+  opacity: 0;
+  transition-property: opacity;
+}
+
+.rt-reveal--scale {
+  opacity: 0;
+  transform: scale(0.965);
+  transition-property: opacity, transform;
+}
+
+.rt-reveal--blur {
+  opacity: 0;
+  filter: blur(14px);
+  transform: translate3d(0, 18px, 0);
+  transition-property: opacity, transform, filter;
+}
+
+/* Cinematic image reveal — the frame opens from the bottom edge while the
+   image inside settles back to 1:1. Used for every large photograph.
+
+   The clip is applied to the CHILD, never to the observed element itself.
+   Chromium computes an empty intersection rect for a target that is fully
+   clipped by its own clip-path, so `clip-path: inset(0 0 100% 0)` on the
+   observed node means IntersectionObserver never reports it as intersecting,
+   `.is-in` is never added, and the element stays invisible forever. Clipping
+   the child keeps the observed box measurable and looks better anyway — the
+   frame holds its place while the image wipes in. */
+.rt-reveal--clip > * {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path var(--rt-t-clip) var(--rt-ease-out) var(--rt-delay);
+  will-change: clip-path;
+}
+
+.rt-reveal--clip.is-in > * {
+  clip-path: inset(0 0 0 0);
+}
+
+/* Text mask — a line of type rising out of its own baseline. */
+/* The mask clips at the content box, which shaves the baseline off large
+   display numerals and the descenders off sentence-case type. The padding
+   gives the glyphs room and the negative margin gives the space back, so the
+   surrounding layout is unchanged. */
+.rt-reveal--line {
+  display: block;
+  overflow: hidden;
+}
+
+/* The padding lives on the CHILD, not the mask: `em` on the mask resolves
+   against the mask's own inherited font-size, which is body-sized, so a 96px
+   display numeral got about 2px of relief and still had its baseline sliced
+   off. On the child it scales with the type it is protecting. */
+.rt-reveal--line > * {
+  display: block;
+  padding-bottom: 0.16em;
+  transform: translate3d(0, 105%, 0);
+  transition: transform var(--rt-t-line) var(--rt-ease-out) var(--rt-delay);
+  will-change: transform;
+}
+
+.rt-reveal.is-in {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+.rt-reveal--line.is-in > * {
+  transform: none;
+}
+
+/* --- Grids --------------------------------------------------------------- */
+
+.rt-grid {
+  display: grid;
+  gap: clamp(16px, 1.8vw, 26px);
+}
+
+.rt-grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.rt-grid--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.rt-grid--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 1000px) {
+  .rt-grid--3,
+  .rt-grid--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .rt-grid--2,
+  .rt-grid--3,
+  .rt-grid--4 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* --- Touch sizing ---------------------------------------------------------
+   Gated on the pointer, not on width. Width-gated touch sizing (the usual
+   `max-width: 560px`) leaves every tablet — which is a touch device at 768 and
+   1024 — with mouse-sized targets. */
+
+@media (pointer: coarse) {
+  .rt-link,
+  .rt-divided > li > a,
+  .rt-divided > li > button {
+    min-height: var(--rt-hit);
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .rt-link::after {
+    bottom: calc((var(--rt-hit) - 1em) / 2);
+  }
+}
+
+/* --- Screen-reader only -------------------------------------------------- */
+
+.rt-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- Reduced motion ------------------------------------------------------
+   Kill every transform/clip/blur reveal outright rather than shortening it, so
+   nothing flickers, and stop the drift and grain from moving. */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Global, not scoped to `.rt-page`: the navigation, the footer, the product
+     page and the cart all live outside the landing page's wrapper, and a
+     reduced-motion user must get a still site, not a still landing page. */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .rt-reveal,
+  .rt-reveal--line > *,
+  .rt-reveal--clip > * {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    clip-path: none !important;
+  }
+
+  .rt-media--drift img {
+    transform: none !important;
+  }
+}

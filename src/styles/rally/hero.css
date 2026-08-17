@@ -1,0 +1,465 @@
+/* ==========================================================================
+   Hero — the brand moment
+
+   One centred lockup over the full-bleed Karoo sunset: the badge, the
+   KarooMoto statement, the sign-off and the two things a customer can do about
+   it. No product shot, no stat rail, no eyebrow — the photograph and six lines
+   of type are the whole argument, which only works if every one of them is
+   placed exactly.
+
+   This file is self-contained. The badge rings, the statement type scale, the
+   ember payoff line, the sign-off rule and the coordinate tracking are all
+   defined here under .rt-hero__*, not inherited from another section.
+
+   The one scroll motion on the page's first screen is a slow push-in on the
+   ground plate: the frame rests on its composed crop and scales toward the
+   horizon as the hero leaves. Driven by a single --rt-hero-p custom property
+   written from React and consumed by a calc() below — React never builds a
+   transform string on a scroll frame.
+
+   Alpha ramps cannot be expressed with the flat colour tokens, so --rt-ink
+   (#070707) is carried into the rgba() stops of the grade — no new hues are
+   introduced.
+   ========================================================================== */
+
+.rt-hero {
+  position: relative;
+  width: 100%;
+  min-height: 100vh; /* fallback for browsers without small-viewport units */
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--rt-ink);
+  overflow: clip;
+  isolation: isolate;
+}
+
+/* The hero is its own vertical rhythm — it deliberately does not use
+   .rt-section, whose padding would fight the 100svh composition. Entrances are
+   pulled from --rt-t-reveal to --rt-t-slow so the whole cascade is settled
+   inside ~1.2s: a section a reader scrolls to can be unhurried, but the first
+   screen has to feel instant. */
+.rt-hero .rt-reveal {
+  transition-duration: var(--rt-t-slow);
+}
+
+.rt-hero .rt-reveal--line > * {
+  transition-duration: var(--rt-t-slow);
+}
+
+/* --- Ground --------------------------------------------------------------- */
+
+.rt-hero__ground {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: clip;
+}
+
+/* The zoom, carried over verbatim from the brand section that used to close
+   the page: the frame rests punched in at 1.18 and pulls back to 1.04 as the
+   hero scrolls one viewport away, so the sunset opens out rather than merely
+   sliding past. Same expression, same range, same gesture — the motion the
+   page used to end on now starts it.
+
+   (An inverted push-in reads well too, and arguably better at the top of a
+   document where there is no arrival to settle out of. It is one sign change
+   away: `scale(calc(1.02 + 0.16 * var(--rt-hero-p, 0)))`.)
+
+   --rt-hero-p runs 0 at rest to 1 after one viewport. Scale alone never
+   exposes an edge, so the plate needs no oversize headroom; the origin sits
+   right of and above centre, on the sun, so the move converges on the horizon
+   rather than pulling straight out of the middle of the frame. */
+.rt-hero__sky {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 60% 50%;
+  filter: brightness(0.92) contrast(1.04);
+  transform: scale(calc(1.18 - 0.14 * var(--rt-hero-p, 0)));
+  transform-origin: 62% 44%;
+  will-change: transform;
+}
+
+/* Legibility grading, in four layers:
+   (d) top band, so the fixed navigation reads over bright cloud ·
+   (c) a soft pool under the centred lockup, deep enough to carry the ember
+       payoff line over the lit part of the horizon ·
+   (b) a shallow outer vignette so the pool has somewhere to release to ·
+   (a) bottom-up ink ramp, which hands the page down into the ink section that
+       follows.
+
+   The sky in this photograph peaks near white-orange, so the grade has to do
+   more work above the horizon than a normal hero image would need. */
+.rt-hero__grade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(7, 7, 7, 0.8) 0%,
+      rgba(7, 7, 7, 0.48) 8%,
+      rgba(7, 7, 7, 0.16) 17%,
+      rgba(7, 7, 7, 0) 26%
+    ),
+    radial-gradient(
+      ellipse 54% 66% at 50% 47%,
+      rgba(7, 7, 7, 0.78) 0%,
+      rgba(7, 7, 7, 0.66) 44%,
+      rgba(7, 7, 7, 0.3) 72%,
+      rgba(7, 7, 7, 0) 90%
+    ),
+    radial-gradient(
+      132% 104% at 50% 46%,
+      rgba(7, 7, 7, 0) 48%,
+      rgba(7, 7, 7, 0.2) 78%,
+      rgba(7, 7, 7, 0.42) 100%
+    ),
+    linear-gradient(
+      to top,
+      var(--rt-ink) 0%,
+      rgba(7, 7, 7, 0.88) 10%,
+      rgba(7, 7, 7, 0.5) 26%,
+      rgba(7, 7, 7, 0.16) 44%,
+      rgba(7, 7, 7, 0) 60%
+    );
+}
+
+/* --- Composition ---------------------------------------------------------- */
+
+.rt-hero__stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--rt-block);
+  text-align: center;
+  /* Clears the fixed navigation above and the scroll cue below, so the lockup
+     is optically centred in the space it actually has rather than in the
+     viewport. */
+  padding-top: calc(var(--rt-header-h) + var(--rt-s-4));
+  /* Deep enough to hold the scroll cue's band clear of the actions — the cue
+     is absolutely positioned, so this padding is the only thing keeping the
+     two off each other. */
+  padding-bottom: calc(var(--rt-s-6) * 2 + var(--rt-s-4));
+  /* One shadow for the whole lockup rather than per-element: over a sunset the
+     grade alone cannot guarantee separation at every exposure. */
+  text-shadow: 0 1px 18px rgb(var(--rt-ink-rgb) / 0.82),
+    0 1px 3px rgb(var(--rt-ink-rgb) / 0.68);
+}
+
+/* --- Badge ---------------------------------------------------------------- */
+
+.rt-hero__badge {
+  position: relative;
+  width: clamp(96px, 12vw, 168px);
+  flex-shrink: 0;
+}
+
+/* Two hairline rings, offset off the artwork, so the badge sits on the
+   photograph like a machined plate instead of a pasted sticker. */
+.rt-hero__badge::before,
+.rt-hero__badge::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.rt-hero__badge::before {
+  inset: -6px;
+  border: 1px solid var(--rt-line-2);
+}
+
+.rt-hero__badge::after {
+  inset: -14px;
+  border: 1px solid var(--rt-line);
+}
+
+.rt-hero__badge-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  /* The supplied badge is square with dark corners — it has to be clipped. */
+  clip-path: circle(49.5% at 50% 50%);
+}
+
+/* --- Statement ------------------------------------------------------------ */
+
+/* The page's only <h1>. Sized at --rt-fs-h2 rather than --rt-fs-h1: this is
+   three whole sentences, not a two-word product name, and at h1 the longest of
+   them wraps on every screen narrower than a desktop. The clamp holds
+   --rt-fs-h2 at every width above ~490px, then ramps down to --rt-fs-h3 so
+   "Lightweight where it counts." still sits on one line at 320px instead of
+   breaking in half. */
+.rt-hero__statement {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: clamp(var(--rt-fs-h3), 7.2vw, var(--rt-fs-h2));
+  line-height: 0.92;
+}
+
+/* The line mask clips at the padding box, so the padding on the inner span —
+   not on the mask — is what keeps descenders whole while still letting the
+   line translate fully out of sight before it reveals. */
+.rt-hero__line > span {
+  padding-bottom: 0.2em;
+}
+
+/* The payoff line. Ember, because this is the sentence the page is here to
+   leave behind — and, with the primary CTA, the only ember on this screen. */
+.rt-hero__line--emphasis > span {
+  color: var(--rt-ember-hi);
+}
+
+/* --- Sign-off ------------------------------------------------------------- */
+
+.rt-hero__signoff {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--rt-s-3);
+}
+
+/* Centred, so the shared draw-in rule needs its origin moved. */
+.rt-hero__spark {
+  width: calc(var(--rt-s-6) * 2);
+  transform-origin: center;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--rt-ember) 50%,
+    transparent
+  );
+}
+
+.rt-hero__signoff-text {
+  font-family: var(--rt-display);
+  font-weight: 600;
+  font-size: var(--rt-fs-h3);
+  line-height: 1.12;
+  letter-spacing: 0.012em;
+  color: var(--rt-text);
+  text-wrap: balance;
+  margin: 0;
+}
+
+/* Letterspaced the way the coordinates are printed on the badge itself.
+   --rt-text-2, not --rt-text-3: over a sunset the muted token measures barely
+   over 1:1. A muted token is muted only against the ground it was drawn for. */
+.rt-hero__coords {
+  letter-spacing: 0.26em;
+  /* Tracking is applied to the right of every glyph, including the last. */
+  text-indent: 0.26em;
+  color: var(--rt-text-2);
+  margin: 0;
+}
+
+/* --- Actions -------------------------------------------------------------- */
+
+.rt-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(12px, 1.4vw, 18px);
+}
+
+.rt-hero__actions .rt-btn {
+  text-decoration: none;
+  /* The lockup's shadow is for type over photography; on a filled button it
+     only muddies the label. */
+  text-shadow: none;
+}
+
+/* --- Scroll cue ----------------------------------------------------------- */
+
+/* This is the top of a long page and has to say so. Kept on the lockup's own
+   axis: a symmetrical composition leaves a gutter-mounted cue looking dropped
+   rather than placed. Absolute, so it costs the lockup no vertical budget. */
+.rt-hero__cue {
+  position: absolute;
+  left: 50%;
+  bottom: var(--rt-s-5);
+  transform: translateX(-50%);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--rt-s-1);
+  pointer-events: none;
+  transition: opacity var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-hero__cue.is-gone {
+  opacity: 0;
+}
+
+.rt-hero__cue-label {
+  font-family: var(--rt-mono);
+  font-weight: 500;
+  font-size: var(--rt-fs-mono-sm);
+  letter-spacing: 0.3em;
+  /* Tracking is applied to the right of every glyph, including the last. */
+  text-indent: 0.3em;
+  text-transform: uppercase;
+  color: var(--rt-text-3);
+  text-shadow: 0 1px 12px rgb(var(--rt-ink-rgb) / 0.8);
+}
+
+.rt-hero__cue-track {
+  position: relative;
+  width: 1px;
+  height: 28px;
+  background: var(--rt-line);
+  overflow: hidden;
+}
+
+.rt-hero__cue-spark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 12px;
+  background: linear-gradient(to bottom, transparent, var(--rt-ember));
+  animation: rt-hero-spark calc(var(--rt-t-reveal) * 2.4) var(--rt-ease-in-out)
+    infinite;
+}
+
+@keyframes rt-hero-spark {
+  from {
+    transform: translate3d(0, -100%, 0);
+  }
+  to {
+    transform: translate3d(0, 320%, 0);
+  }
+}
+
+/* --- Breakpoints ---------------------------------------------------------- */
+
+@media (max-width: 1200px) {
+  .rt-hero__badge::after {
+    inset: -11px;
+  }
+}
+
+/* Below the two-column breakpoint the lockup spans the full measure, so the
+   pool flattens into a wide band and the crop moves off the sun and onto the
+   silhouette — at this width there is no unlit part of the frame left for the
+   type to sit over unless the frame goes and finds one. */
+@media (max-width: 1000px) {
+  .rt-hero__sky {
+    object-position: 46% 44%;
+    /* The origin follows the crop, so the push-in still converges on the
+       horizon rather than on whatever now happens to sit at 62%. */
+    transform-origin: 50% 46%;
+  }
+
+  .rt-hero__grade {
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(7, 7, 7, 0.8) 0%,
+        rgba(7, 7, 7, 0.44) 10%,
+        rgba(7, 7, 7, 0.12) 20%,
+        rgba(7, 7, 7, 0) 28%
+      ),
+      radial-gradient(
+        ellipse 92% 56% at 50% 47%,
+        rgba(7, 7, 7, 0.76) 0%,
+        rgba(7, 7, 7, 0.6) 46%,
+        rgba(7, 7, 7, 0) 88%
+      ),
+      linear-gradient(
+        to top,
+        var(--rt-ink) 0%,
+        rgba(7, 7, 7, 0.9) 12%,
+        rgba(7, 7, 7, 0.56) 30%,
+        rgba(7, 7, 7, 0.2) 50%,
+        rgba(7, 7, 7, 0) 70%
+      );
+  }
+}
+
+@media (max-width: 560px) {
+  .rt-hero__badge::after {
+    inset: -9px;
+  }
+
+  .rt-hero__coords {
+    letter-spacing: 0.18em;
+    text-indent: 0.18em;
+  }
+
+  .rt-hero__actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: min(100%, 320px);
+  }
+}
+
+/* Short screens of any width. The lockup is a fixed stack of six things and
+   none of them can be dropped without breaking the bookend, so the budget is
+   reclaimed from the badge and the rhythm between the groups, in two steps.
+
+   Step one: a laptop screen. */
+@media (max-height: 940px) {
+  .rt-hero__stage {
+    gap: calc(var(--rt-block) * 0.68);
+  }
+
+  .rt-hero__badge {
+    width: clamp(84px, 10vw, 132px);
+  }
+}
+
+/* Step two: 720p and below, a tablet in landscape, a phone on its side. The
+   scroll cue gives its band back — it is the one mark on the screen with no
+   informational job. */
+@media (max-height: 840px) {
+  .rt-hero__stage {
+    gap: calc(var(--rt-block) * 0.55);
+    padding-bottom: var(--rt-s-6);
+  }
+
+  .rt-hero__badge {
+    width: clamp(76px, 8.5vw, 112px);
+  }
+
+  .rt-hero__cue {
+    display: none;
+  }
+}
+
+/* Step three: a netbook or a phone held sideways. The badge steps down again
+   rather than the sign-off being dropped — the bookend is the point. */
+@media (max-height: 640px) {
+  .rt-hero__stage {
+    gap: calc(var(--rt-block) * 0.4);
+  }
+
+  .rt-hero__badge {
+    width: clamp(56px, 6vw, 84px);
+  }
+}
+
+/* Reduced motion: base.css already neutralises the reveals, and
+   useScrollProgress pins --rt-hero-p to its restingValue of 0, which leaves the
+   ground on its composed, un-zoomed frame rather than parked mid-gesture. The
+   scroll cue is the one element on the screen with no informational job, so it
+   goes entirely. */
+@media (prefers-reduced-motion: reduce) {
+  .rt-hero__cue {
+    display: none;
+  }
+
+  .rt-hero__sky {
+    will-change: auto;
+  }
+}

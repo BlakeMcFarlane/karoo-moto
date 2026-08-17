@@ -1,0 +1,208 @@
+/* ==========================================================================
+   Trust — "Buy it. Install it. Ride it."
+
+   A bone section. Two large cards, each anchored by its number set at display
+   size. Everything here is either a base.css primitive or a token; the only
+   local values are the two hairline mixes, because the shared --rt-line
+   values are keyed to the dark ground and disappear on bone paper.
+   ========================================================================== */
+
+.rt-trust {
+  --rt-trust-hair: color-mix(in srgb, var(--rt-bone-ink) 13%, transparent);
+  --rt-trust-hair-2: color-mix(in srgb, var(--rt-bone-ink) 28%, transparent);
+  --rt-trust-wash: color-mix(in srgb, var(--rt-ember) 9%, transparent);
+}
+
+/* --- Header -------------------------------------------------------------- */
+
+/* Centred: this is a full-width reassurance beat, not a column of argument.
+   The head is widened so the lede keeps its measure, and the heading is
+   narrowed inside it so it breaks where the sentence wants to. */
+.rt-trust__head {
+  max-width: var(--rt-maxw-text);
+}
+
+.rt-trust__heading {
+  max-width: 17ch;
+}
+
+.rt-trust__lede {
+  max-width: 52ch;
+}
+
+/* --- Grid ---------------------------------------------------------------- */
+
+.rt-trust__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(16px, 1.8vw, 28px);
+  margin-top: clamp(40px, 5vw, 76px);
+}
+
+/* The reveal wrapper is the grid item, so it has to pass the stretch on. */
+.rt-trust__cell {
+  display: flex;
+}
+
+/* --- Card ---------------------------------------------------------------- */
+
+.rt-trust__card {
+  flex: 1;
+  gap: clamp(14px, 1.4vw, 20px);
+  padding: clamp(26px, 3vw, 46px);
+  text-align: left;
+}
+
+/* base.css sizes the interactive hover for the ink ground — on bone the
+   hairline and the shadow both need re-keying or they read as smudges. */
+.rt-trust__card.rt-card--interactive:hover,
+.rt-trust__card.rt-card--interactive:focus-within {
+  border-color: var(--rt-trust-hair-2);
+  box-shadow: 0 26px 58px -34px
+    color-mix(in srgb, var(--rt-bone-ink) 55%, transparent);
+}
+
+/* --- The number ---------------------------------------------------------- */
+
+.rt-trust__badge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.rt-trust__numeral-mask {
+  display: block;
+  max-width: 100%;
+}
+
+.rt-trust__numeral {
+  font-family: var(--rt-display);
+  font-weight: 700;
+  font-size: clamp(3.5rem, 7vw, 6rem);
+  /* Not 0.88 — a line box shorter than the glyph guarantees the mask clips the
+     baseline, and these two numerals ARE the argument of the section. */
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--rt-bone-ink);
+  font-variant-numeric: lining-nums tabular-nums;
+  /* The mask clips to the box, so the cap line needs a little air. */
+  padding-top: 0.06em;
+}
+
+/* Numerals land last: a beat behind their card and a touch slower, so the eye
+   is already on the card when the number arrives. */
+.rt-trust__numeral-mask > * {
+  transition-duration: calc(var(--rt-t-reveal) + var(--rt-t-fast));
+}
+
+.rt-trust__unit {
+  letter-spacing: 0.3em;
+  color: var(--rt-bone-ink-2);
+}
+
+/* Hairline under the badge, drawn in with the card. */
+.rt-trust__hr {
+  display: block;
+  width: 100%;
+  height: 1px;
+  border: 0;
+  background: linear-gradient(
+    90deg,
+    var(--rt-trust-hair-2),
+    var(--rt-trust-hair) 58%,
+    transparent
+  );
+  margin-block: clamp(6px, 0.8vw, 12px);
+  transition-delay: var(--rt-delay, 0ms);
+}
+
+/* --- Copy ---------------------------------------------------------------- */
+
+.rt-trust__title {
+  max-width: 20ch;
+  color: var(--rt-bone-ink);
+}
+
+.rt-trust__body {
+  max-width: var(--rt-maxw-text);
+}
+
+/* The sentence that removes the hesitation. Ember rule, darker ink, one step
+   up in size — it has to out-weigh the paragraph above it. */
+.rt-trust__highlight {
+  margin: clamp(4px, 0.6vw, 10px) 0 0;
+  padding: clamp(12px, 1.3vw, 18px) clamp(14px, 1.4vw, 20px) clamp(12px, 1.3vw, 18px)
+    clamp(16px, 1.6vw, 22px);
+  border-left: 2px solid var(--rt-ember-deep);
+  background: linear-gradient(90deg, var(--rt-trust-wash), transparent 78%);
+  font-size: var(--rt-fs-lede);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--rt-bone-ink);
+  max-width: var(--rt-maxw-text);
+  text-wrap: pretty;
+}
+
+/* --- Policy link --------------------------------------------------------- */
+
+.rt-trust__foot {
+  margin: auto 0 0;
+  padding-top: clamp(16px, 1.8vw, 24px);
+  border-top: 1px solid var(--rt-trust-hair);
+}
+
+/* Bone wins the colour cascade in base.css, so the hover state has to be
+   restated here — and the tap target grown to 44px without pushing the
+   sliding underline away from the baseline. */
+.rt-trust__foot .rt-link {
+  padding-block: 14px 10px;
+}
+
+.rt-trust__foot .rt-link:hover,
+.rt-trust__foot .rt-link:focus-visible {
+  color: var(--rt-ember);
+}
+
+/* --- Responsive ---------------------------------------------------------- */
+
+@media (max-width: 1200px) {
+  .rt-trust__heading {
+    max-width: 19ch;
+  }
+}
+
+@media (max-width: 1000px) {
+  .rt-trust__numeral {
+    font-size: clamp(3.5rem, 8vw, 5.2rem);
+  }
+}
+
+/* Two large cards stop being large before they stop fitting. */
+@media (max-width: 900px) {
+  .rt-trust__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .rt-trust__heading,
+  .rt-trust__title {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .rt-trust__grid {
+    margin-top: clamp(28px, 8vw, 40px);
+  }
+
+  /* 15vw keeps two digits inside a 320px card with the padding accounted for. */
+  .rt-trust__numeral {
+    font-size: clamp(2.9rem, 15vw, 4.4rem);
+  }
+
+  .rt-trust__highlight {
+    font-size: var(--rt-fs-body);
+  }
+}

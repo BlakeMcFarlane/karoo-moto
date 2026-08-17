@@ -1,0 +1,388 @@
+/* proof — owned by the proof section component. */
+
+/* ==========================================================================
+   Proven in Africa — scroll-scrubbed sticky scene.
+
+   Geometry: `.rt-proof__track` is the only thing with height. The scene inside
+   it is exactly one viewport tall and sticks at the top, so the scrub distance
+   is always (track height − 100svh) and the sticky child can never out-run its
+   wrapper. `--p` (0→1, written by the component) is the single input: the
+   photograph un-crops from 1.09 to 1.0 and the darkening veil lifts.
+
+   Framing: the source is a 3:4 PORTRAIT of a whole motorcycle. Bleeding it
+   across a 16:9 viewport with `object-fit: cover` throws away more than half
+   the frame — the bike arrives as a crop of its own engine. So above 1000px
+   the photograph is not full-bleed: it is a full-height PORTRAIT panel held
+   against the right edge, sized so its box aspect stays near the negative's
+   own 3:4. Roughly 90% of the frame survives at every desktop height, the copy
+   gets clean ink to sit on instead of a scrim, and the panel's left edge is
+   masked so the photograph dissolves into the ground rather than ending on a
+   rectangle.
+   ========================================================================== */
+
+.rt-proof {
+  position: relative;
+  background: var(--rt-ink);
+}
+
+.rt-proof__track {
+  --p: 0;
+  position: relative;
+  /* Scrub distance is (track − 100svh). The move is gentler than it was, so
+     the runway is shorter too — a 130vh scroll for a 9% settle reads as the
+     page having stopped rather than as a scene. */
+  height: 200vh;
+}
+
+.rt-proof__scene {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100vh;
+  height: 100svh;
+  /* Keep the copy clear of the fixed page chrome at both ends. */
+  padding-top: var(--rt-header-h);
+  padding-bottom: var(--rt-buybar-h);
+  overflow: clip;
+}
+
+/* --- The photograph ------------------------------------------------------ */
+
+.rt-proof__media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: clip;
+  background: var(--rt-ink-2);
+}
+
+.rt-proof__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* Bias up the frame: what little the panel does crop should come off the
+     concrete in front of the stand, not off the tower. */
+  object-fit: cover;
+  object-position: 50% 42%;
+  /* A 9% move, not 16%. The scene now starts wide enough that the whole
+     machine is already in frame at --p: 0 — the scrub settles the last of the
+     crop rather than travelling from a close-up. */
+  transform: scale(calc(1.09 - 0.09 * var(--p)));
+  transform-origin: 50% 44%;
+  will-change: transform;
+}
+
+/* Darkening plate — heavy while the section arrives, lifting as it is read.
+   Lighter at both ends than it was: the photograph is the proof, so it has to
+   resolve into an actual motorcycle rather than a suggestion of one. */
+.rt-proof__veil {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 7, 7, 0.66);
+  opacity: calc(1 - 0.72 * var(--p));
+  will-change: opacity;
+}
+
+/* Fixed readability scrim. Gradients over photography are the one place a
+   token cannot express the value — these are all the ink ground at varying
+   alpha, nothing new. */
+.rt-proof__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to top,
+      rgba(7, 7, 7, 0.94) 0%,
+      rgba(7, 7, 7, 0.78) 22%,
+      rgba(7, 7, 7, 0.3) 52%,
+      rgba(7, 7, 7, 0) 74%
+    ),
+    linear-gradient(
+      to right,
+      rgba(7, 7, 7, 0.78) 0%,
+      rgba(7, 7, 7, 0.26) 44%,
+      rgba(7, 7, 7, 0) 70%
+    ),
+    linear-gradient(to bottom, rgba(7, 7, 7, 0.5) 0%, rgba(7, 7, 7, 0) 18%);
+}
+
+/* --- Desktop framing: full-height portrait panel, right-aligned -----------
+   Width is the smaller of a share of the line and a multiple of the viewport
+   HEIGHT, so the panel's own aspect stays close to the negative's 3:4 whatever
+   the window shape is. That is what keeps ~90% of the frame — and therefore
+   the whole bike — in shot at 1280x720 as well as 1920x1080. */
+
+@media (min-width: 1001px) {
+  .rt-proof__media {
+    inset: 0 0 0 auto;
+    width: min(58%, calc(100svh * 0.82));
+    /* Dissolve the inboard edge into the ink instead of ending the photograph
+       on a hard vertical. Short ramp: the bike's tail lives there. */
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(0, 0, 0, 0.5) 10%,
+      #000 26%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(0, 0, 0, 0.5) 10%,
+      #000 26%
+    );
+  }
+
+  /* The copy now sits on ink, not on the photograph, so the scrim's only jobs
+     are seating the panel under the fixed chrome and holding the data strip
+     legible where it crosses the front wheel. */
+  .rt-proof__scrim {
+    background:
+      linear-gradient(
+        to top,
+        rgba(7, 7, 7, 0.92) 0%,
+        rgba(7, 7, 7, 0.72) 14%,
+        rgba(7, 7, 7, 0.24) 34%,
+        rgba(7, 7, 7, 0) 56%
+      ),
+      linear-gradient(
+        to right,
+        rgba(7, 7, 7, 0.7) 0%,
+        rgba(7, 7, 7, 0.2) 24%,
+        rgba(7, 7, 7, 0) 48%
+      ),
+      linear-gradient(to bottom, rgba(7, 7, 7, 0.58) 0%, rgba(7, 7, 7, 0) 15%);
+  }
+}
+
+/* The panel loses its height headroom before it loses its width, so it tracks
+   the viewport more tightly here — and gives the copy column back the room the
+   narrower measure needs. */
+@media (min-width: 1001px) and (max-width: 1200px) {
+  .rt-proof__media {
+    width: min(52%, calc(100svh * 0.76));
+  }
+}
+
+/* --- Copy ---------------------------------------------------------------- */
+
+.rt-proof__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-block);
+}
+
+.rt-proof__copy {
+  max-width: min(48ch, 100%);
+}
+
+/* The lede is the one editorial line in the section — display type, sentence
+   case, so it reads as a spoken claim rather than another heading. */
+.rt-proof__lede {
+  font-family: var(--rt-display);
+  font-weight: 600;
+  font-size: var(--rt-fs-h3);
+  line-height: 1.14;
+  letter-spacing: -0.006em;
+  color: var(--rt-text);
+  max-width: 26ch;
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.rt-proof__body {
+  margin-top: clamp(14px, 1.6vw, 22px);
+}
+
+.rt-proof__body > * + * {
+  margin-top: 1em;
+}
+
+/* --- Foot: caption + field data ------------------------------------------ */
+
+.rt-proof__foot {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.2vw, 16px);
+}
+
+.rt-proof__caption-wrap {
+  align-self: flex-end;
+  max-width: 100%;
+}
+
+.rt-proof__caption {
+  font-family: var(--rt-mono);
+  font-weight: 500;
+  font-size: var(--rt-fs-mono-sm);
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  color: var(--rt-text-3);
+  text-align: right;
+  margin: 0;
+}
+
+.rt-proof__markers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  border-top: 1px solid var(--rt-line-2);
+}
+
+.rt-proof__marker {
+  display: flex;
+  /* dt before dd in the DOM (correct for assistive tech), value on top for
+     the eye. */
+  flex-direction: column-reverse;
+  gap: 8px;
+  min-width: 0;
+  padding-top: clamp(12px, 1.4vw, 18px);
+}
+
+.rt-proof__marker + .rt-proof__marker {
+  border-left: 1px solid var(--rt-line);
+  padding-left: clamp(14px, 2.2vw, 34px);
+}
+
+.rt-proof__marker-value {
+  font-family: var(--rt-display);
+  font-weight: 700;
+  font-size: var(--rt-fs-h3);
+  line-height: 1;
+  letter-spacing: 0.004em;
+  text-transform: uppercase;
+  color: var(--rt-text);
+  margin: 0;
+}
+
+.rt-proof__marker-label {
+  font-family: var(--rt-mono);
+  font-weight: 500;
+  font-size: var(--rt-fs-mono-sm);
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rt-text-3);
+  margin: 0;
+}
+
+/* --- Responsive ---------------------------------------------------------- */
+
+@media (max-width: 1200px) {
+  .rt-proof__track {
+    height: 185vh;
+  }
+}
+
+@media (max-width: 1000px) {
+  .rt-proof__copy {
+    max-width: 100%;
+  }
+
+  .rt-proof__lede {
+    max-width: 30ch;
+  }
+}
+
+@media (max-width: 768px) {
+  /* A long sticky scene is a trap on a phone — halve the scrub distance. */
+  .rt-proof__track {
+    height: 150vh;
+  }
+
+  .rt-proof__inner {
+    gap: clamp(20px, 4vw, 32px);
+  }
+
+  .rt-proof__marker + .rt-proof__marker {
+    padding-left: 14px;
+  }
+}
+
+/* Reduced motion, 561px and up — the scene keeps its composition and simply
+   becomes its own last frame. `useScrollProgress` already pins --p at 1, so
+   collapsing the track to the scene's own height leaves the photograph at 1:1
+   with the veil at its lightest: one viewport, nothing pinned, nothing that
+   moves, and the same picture the animation resolves to. Rebuilding it as a
+   stacked document instead would hand a reduced-motion desktop a worse
+   composition than the one it is opting out of. */
+@media (prefers-reduced-motion: reduce) {
+  .rt-proof__track {
+    height: auto;
+  }
+}
+
+/* Static composition — below 560px the sticky scene is a trap, so the same
+   markup lays itself out as a document: the whole photograph, then the copy
+   and the data strip on the ink ground. No pinning, no scrub. */
+@media (max-width: 560px) {
+  .rt-proof__track {
+    height: auto;
+  }
+
+  .rt-proof__scene {
+    position: static;
+    height: auto;
+    padding-top: 0;
+    padding-bottom: var(--rt-section-y-sm);
+  }
+
+  /* A 3:4 box against a 3:4 negative — the still frame is the whole
+     photograph, edge to edge, with no crop at all. */
+  .rt-proof__media {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    margin-bottom: var(--rt-block);
+  }
+
+  .rt-proof__media img {
+    transform: none;
+    will-change: auto;
+  }
+
+  .rt-proof__veil {
+    opacity: 1;
+    background: rgba(7, 7, 7, 0.28);
+    will-change: auto;
+  }
+
+  /* The photo now ends inside the page, so it fades into the ground instead of
+     carrying the copy. */
+  .rt-proof__scrim {
+    background: linear-gradient(
+      to top,
+      rgba(7, 7, 7, 0.96) 0%,
+      rgba(7, 7, 7, 0.52) 16%,
+      rgba(7, 7, 7, 0) 44%
+    );
+  }
+}
+
+@media (max-width: 560px) {
+  .rt-proof__markers {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rt-proof__marker + .rt-proof__marker {
+    border-left: 0;
+    border-top: 1px solid var(--rt-line);
+    padding-left: 0;
+  }
+
+  .rt-proof__marker {
+    padding-bottom: clamp(12px, 3vw, 16px);
+  }
+
+  .rt-proof__caption-wrap {
+    align-self: flex-start;
+  }
+
+  .rt-proof__caption {
+    text-align: left;
+  }
+}

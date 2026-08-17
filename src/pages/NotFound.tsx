@@ -1,38 +1,47 @@
-import { Link } from 'react-router-dom'
-import Icon from '../components/Icon'
-import TopoPattern from '../components/art/TopoPattern'
+import { Link, useLocation } from 'react-router-dom'
+import RallyIcon from '../components/rally/RallyIcon'
 
+/**
+ * 404 — also the fallback for an unknown /policies/:doc.
+ *
+ * Three pages exist, so the useful thing a missing route can do is name the
+ * address that failed and point at the two that matter. Same stack as every
+ * other block on the site — mono read-out, rule, display heading, one line,
+ * actions — left-aligned to a single edge and vertically centred in the
+ * document ground.
+ */
 export default function NotFound() {
+  const { pathname } = useLocation()
+
   return (
-    <section className="section" style={{ position: 'relative', overflow: 'hidden' }}>
-      <TopoPattern
-        className=""
-        opacity={0.14}
-        stroke="#8b5e35"
-      />
-      <div
-        className="container container-narrow"
-        style={{ position: 'relative', textAlign: 'center', paddingBlock: 'var(--sp-8)' }}
-      >
-        <div className="mono" style={{ color: 'var(--copper)', letterSpacing: '0.3em', marginBottom: 'var(--sp-4)' }}>
-          ERROR · 404
-        </div>
-        <h1 className="display" style={{ fontSize: 'clamp(2.4rem,6vw,4rem)' }}>
-          Off the map
-        </h1>
-        <p className="lede" style={{ maxWidth: '46ch', margin: 'var(--sp-4) auto 0' }}>
-          The road ran out. This page doesn't exist — let's get you back to
-          something solid.
+    <div className="rt-doc rt-doc--missing">
+      <div className="rt-container rt-container--narrow rt-doc__missing-inner">
+        <p className="rt-mono rt-doc__code">
+          <span className="rt-doc__code-key">Error 404</span>
+          <span className="rt-doc__code-sep" aria-hidden="true">
+            /
+          </span>
+          <span className="rt-doc__code-path">{pathname}</span>
         </p>
-        <div style={{ marginTop: 'var(--sp-6)', display: 'flex', gap: 'var(--sp-3)', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link to="/" className="btn btn-primary">
-            <Icon name="arrow-left" size={18} /> Back Home
+
+        <hr className="rt-rule rt-doc__code-rule" />
+
+        <h1 className="rt-h1 rt-doc__title">Off the map</h1>
+
+        <p className="rt-lede rt-doc__lede">
+          Nothing is fitted to that address. The Rally Tower is this way.
+        </p>
+
+        <div className="rt-doc__actions">
+          <Link to="/" className="rt-btn rt-btn--primary">
+            Back to the Rally Tower
+            <RallyIcon name="arrow" size={16} className="rt-btn__icon" />
           </Link>
-          <Link to="/shop" className="btn btn-secondary">
-            Shop All
+          <Link to="/product" className="rt-btn rt-btn--secondary">
+            View the product
           </Link>
         </div>
       </div>
-    </section>
+    </div>
   )
 }

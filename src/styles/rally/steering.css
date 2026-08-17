@@ -1,0 +1,466 @@
+/* ==========================================================================
+   steering — Rider-Focused Design (#4)
+
+   A plan-view diagram of a front end, scrubbed by scroll. Everything that
+   moves is a single CSS rotation of one <g>; React only writes the angle into
+   `--rt-steer-angle` and the mono read-out.
+   ========================================================================== */
+
+/* --- Scene shell --------------------------------------------------------- */
+
+.rt-steer__scene {
+  position: relative;
+}
+
+/* Flex, not grid, below the two-column breakpoint: a sticky grid item is
+   trapped inside its own grid area, a sticky flex item is not. */
+.rt-steer__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-block);
+}
+
+/* Diagram first on small screens — the argument is visual, so it leads. */
+.rt-steer__stage {
+  order: -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(12px, 1.6vw, 20px);
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+}
+
+.rt-steer__copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-block);
+}
+
+/* The shared `.rt-head + *` rhythm would double up on the flex gap. */
+.rt-steer__copy .rt-head + * {
+  margin-top: 0;
+}
+
+.rt-steer__prose {
+  max-width: var(--rt-maxw-text);
+}
+
+/* --- Diagram ------------------------------------------------------------- */
+
+.rt-steer__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Faint sweep arcs, lock marks and the straight-ahead datum. */
+.rt-steer__guides path {
+  fill: none;
+  stroke: var(--rt-line-2);
+  stroke-width: 1;
+  stroke-dasharray: 4 7;
+  stroke-linecap: round;
+}
+
+/* Static chassis — deliberately the dimmest thing in the frame. */
+.rt-steer__chassis {
+  fill: none;
+  stroke: var(--rt-text-3);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Steering assembly. `fill-box` is pinned to the whole viewBox by the
+   invisible extent rect inside the group, so the origin below can be written
+   straight in diagram coordinates: the steering axis at (260, 390). */
+.rt-steer__rotor {
+  transform-box: fill-box;
+  transform-origin: 260px 390px;
+  transform: rotate(var(--rt-steer-angle, 0deg));
+}
+
+@media (min-width: 769px) and (prefers-reduced-motion: no-preference) {
+  .rt-steer__rotor {
+    will-change: transform;
+  }
+}
+
+.rt-steer__rig {
+  fill: none;
+  stroke: var(--rt-text);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rt-steer__bar {
+  stroke-width: 3;
+}
+
+.rt-steer__grip {
+  stroke-width: 7;
+  stroke: var(--rt-text-2);
+}
+
+.rt-steer__tower {
+  fill: none;
+  stroke: var(--rt-bone);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.rt-steer__plate {
+  fill: var(--rt-panel-2);
+}
+
+.rt-steer__arm {
+  stroke: var(--rt-text-2);
+  stroke-width: 1.5;
+}
+
+/* Polycarbonate reads as a hairline — it is there, but you see through it. */
+.rt-steer__screen {
+  stroke: var(--rt-text-2);
+  stroke-width: 1.2;
+}
+
+.rt-steer__lamp {
+  fill: var(--rt-panel);
+  stroke-width: 2;
+}
+
+.rt-steer__optic circle {
+  fill: var(--rt-panel);
+  stroke: var(--rt-sun);
+  stroke-width: 1.4;
+}
+
+/* Light cones. Fills come from the gradients in <defs>; the stops carry the
+   tokens so no colour is written twice. */
+.rt-steer__cone {
+  stroke-width: 1;
+}
+
+.rt-steer__cone--turning {
+  stroke: var(--rt-line-ember);
+}
+
+.rt-steer__cone--fixed {
+  stroke: var(--rt-line-teal);
+}
+
+.rt-steer__stop-beam-a {
+  stop-color: var(--rt-ember-hi);
+  stop-opacity: 0.5;
+}
+
+.rt-steer__stop-beam-b {
+  stop-color: var(--rt-ember);
+  stop-opacity: 0.2;
+}
+
+.rt-steer__stop-beam-c {
+  stop-color: var(--rt-ember-deep);
+  stop-opacity: 0;
+}
+
+.rt-steer__stop-fixed-a {
+  stop-color: var(--rt-teal-hi);
+  stop-opacity: 0.2;
+}
+
+.rt-steer__stop-fixed-b {
+  stop-color: var(--rt-teal);
+  stop-opacity: 0.09;
+}
+
+.rt-steer__stop-fixed-c {
+  stop-color: var(--rt-teal);
+  stop-opacity: 0;
+}
+
+.rt-steer__axis {
+  fill: none;
+  stroke: var(--rt-teal-hi);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+
+.rt-steer__axis-label,
+.rt-steer__readout {
+  font-family: var(--rt-mono);
+  font-weight: 500;
+  stroke: none;
+}
+
+.rt-steer__axis-label {
+  fill: var(--rt-text-3);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.rt-steer__readout {
+  fill: var(--rt-teal-hi);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+.rt-steer__hint {
+  margin: 0;
+  text-align: center;
+  color: var(--rt-text-2);
+}
+
+/* --- Legend -------------------------------------------------------------- */
+
+.rt-steer__legend {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--rt-line);
+  padding-top: clamp(18px, 2vw, 26px);
+}
+
+.rt-steer__legend-row {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.rt-steer__swatch {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 8px;
+  border-radius: var(--rt-r-xs);
+  transform: translateY(-2px);
+}
+
+.rt-steer__swatch--turning {
+  background: linear-gradient(90deg, var(--rt-ember-hi), transparent);
+  box-shadow: inset 0 0 0 1px var(--rt-line-ember);
+}
+
+.rt-steer__swatch--fixed {
+  background: linear-gradient(90deg, var(--rt-teal), transparent);
+  box-shadow: inset 0 0 0 1px var(--rt-line-teal);
+}
+
+.rt-steer__legend-label {
+  color: var(--rt-text-2);
+  font-size: var(--rt-fs-small);
+  line-height: 1.5;
+}
+
+/* --- Pinned two-column scene (>1000px) -----------------------------------
+   The diagram is the section's only visual, so the pinned row is composed
+   around it: the measure is pulled in from the full 1360 container to a
+   1180 stage width, the two columns are equal rather than copy-led, and the
+   diagram takes every pixel the two fixed bars leave it. */
+
+@media (min-width: 1101px) {
+  /* The pinned frame already reserves a purchase-bar's worth of clearance
+     under the diagram, and that clearance becomes the section's trailing space
+     the moment the scene unpins. Adding --rt-section-y on top of it left ~210px
+     of empty panel between the scroll hint and the bone edge — a runway, and
+     exactly where the supporting photographs used to be. The frame's own bottom
+     edge is now the section's bottom edge. */
+  .rt-steer {
+    padding-bottom: 0;
+  }
+
+  .rt-steer__scene {
+    /* 220vh — 120vh of actual scrub for a 52° sweep, which is about a screen
+       and a half of scrolling. At 300vh the sweep was slow enough to read as
+       the page having stopped, and with the supporting photographs gone the
+       extra runway was empty panel with nothing arriving at the end of it. */
+    height: 220vh;
+    max-width: 1180px;
+    margin-inline: auto;
+  }
+
+  .rt-steer__scene--static {
+    height: auto;
+  }
+
+  .rt-steer__inner {
+    position: sticky;
+    top: var(--rt-header-h);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(40px, 4.6vw, 96px);
+    /* The purchase bar overlays the bottom of the viewport, so the pinned
+       stage must clear both bars or its angle read-out sits underneath it. */
+    min-height: calc(100vh - var(--rt-header-h));
+    min-height: calc(100svh - var(--rt-header-h));
+    /* min-height alone is not enough — it is a floor, and when the copy grows
+       the scene overflows it and the hint/legend land under the purchase bar.
+       Bottom padding keeps them clear however tall the content gets. */
+    padding-top: clamp(20px, 4vh, 56px);
+    padding-bottom: calc(var(--rt-buybar-h) + var(--rt-s-5));
+  }
+
+  .rt-steer__scene--static .rt-steer__inner {
+    position: static;
+    min-height: 0;
+  }
+
+  .rt-steer__stage {
+    order: 0;
+    /* 520 / 680 is the diagram's aspect. The height budget subtracts BOTH
+       fixed bars, the scene's own top padding, the stage gap and the scroll
+       hint — sized against the nav alone the column overflows its pinned box
+       and pushes the hint under the purchase bar. 120px covers the last three
+       with a margin; the cap is what a 1080-tall screen can actually use. */
+    max-width: min(
+      560px,
+      calc(
+        (100svh - var(--rt-header-h) - var(--rt-buybar-h) - 120px) * 0.765
+      )
+    );
+  }
+}
+
+@media (max-width: 1200px) and (min-width: 1101px) {
+  .rt-steer__inner {
+    gap: clamp(32px, 3.4vw, 56px);
+  }
+}
+
+/* Short desktop windows — 1280x720, 1366x768, and any laptop whose browser
+   carries a bookmarks bar. Everywhere else on the page vertical rhythm is
+   width-keyed, which is right; but this column is pinned inside a frame whose
+   height is the viewport minus BOTH fixed bars, and at 720px that leaves about
+   500px for a heading, two paragraphs and a legend. On the width-keyed rhythm
+   the legend's last row landed flush against the purchase bar.
+
+   The heading is the biggest saving: the shared 34ch cap is a measure for a
+   narrow column, and this one is half of a 1180px row, so letting it wrap to
+   the column costs two lines instead of three. The gaps then key off height. */
+@media (min-width: 1101px) and (max-height: 860px) {
+  .rt-steer__inner {
+    padding-top: clamp(12px, 2vh, 24px);
+  }
+
+  .rt-steer__copy {
+    gap: clamp(18px, 2.6vh, 34px);
+  }
+
+  .rt-steer__copy .rt-head {
+    max-width: none;
+    gap: var(--rt-s-3);
+  }
+
+  .rt-steer__legend {
+    gap: var(--rt-s-2);
+    padding-top: clamp(12px, 1.8vh, 20px);
+  }
+}
+
+
+/* Tablet landscape and the narrow band under the pinned layout. The scene is
+   not tall enough to pin a full row here, but 1024px is plenty of line for the
+   two-column composition — and with the supporting photographs gone, a single
+   centred diagram above left-aligned copy left the section running on two
+   different axes with a column of empty panel beside the prose. Same layout as
+   the pinned scene, just not pinned. */
+@media (min-width: 1001px) and (max-width: 1100px) {
+  .rt-steer__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
+    align-items: center;
+    gap: clamp(32px, 4vw, 56px);
+  }
+
+  .rt-steer__stage {
+    order: 0;
+    max-width: 100%;
+  }
+}
+
+/* --- Tablet band: one column, but the diagram still steers ---------------
+   The scene is not tall enough to pin the whole row, so only the stage sticks
+   and the copy scrolls beneath it. The short tail gives the sweep somewhere to
+   run without inventing a full sticky scroll trap. */
+
+@media (min-width: 769px) and (max-width: 1000px) {
+  .rt-steer__inner {
+    padding-bottom: 22vh;
+  }
+
+  .rt-steer__stage {
+    position: sticky;
+    top: calc(var(--rt-header-h) + 16px);
+    max-width: min(
+      400px,
+      calc((100vh - var(--rt-header-h) - 130px) * 0.765)
+    );
+  }
+
+  .rt-steer__scene--static .rt-steer__inner {
+    padding-bottom: 0;
+  }
+
+  .rt-steer__scene--static .rt-steer__stage {
+    position: static;
+  }
+}
+
+/* --- Small screens ------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  /* Strokes have to survive being scaled to ~280px of diagram width. */
+  .rt-steer__chassis {
+    stroke-width: 2;
+  }
+
+  .rt-steer__rig {
+    stroke-width: 2.4;
+  }
+
+  .rt-steer__tower {
+    stroke-width: 2.6;
+  }
+
+  .rt-steer__bar {
+    stroke-width: 4;
+  }
+
+  .rt-steer__grip {
+    stroke-width: 9;
+  }
+
+  .rt-steer__guides path {
+    stroke-width: 1.6;
+  }
+
+  .rt-steer__stage {
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 560px) {
+  /* Bleed the diagram into the gutters. At 320px the stage was leaving ~64px
+     of dead margin each side and rendering the tower glyph at ~60px — the
+     section's entire argument, too small to read. */
+  .rt-steer__stage {
+    max-width: none;
+    width: calc(100% + var(--rt-gutter) * 2);
+    margin-inline: calc(var(--rt-gutter) * -1);
+  }
+
+  .rt-steer__axis-label {
+    display: none;
+  }
+
+  .rt-steer__legend-row {
+    gap: 12px;
+  }
+}

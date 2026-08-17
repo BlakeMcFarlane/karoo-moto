@@ -1,0 +1,197 @@
+/* ==========================================================================
+   doc — see docs/rally-tower-brief.md
+
+   The two supporting document routes: /policies/:doc and the 404 fallback.
+   Both are ordinary documents on the ink ground — no full-bleed imagery, no
+   scroll choreography, no second colour. Everything below is either a token
+   or a namespaced adjustment to a base.css primitive; nothing is
+   re-implemented. `.rt-doc` itself (min-height + vertical rhythm) lives in
+   app.css.
+   ========================================================================== */
+
+.rt-doc {
+  /* Long uninterrupted legal copy is scanned in runs rather than read as a
+     lede, so the column is allowed a few characters more than the editorial
+     measure. Expressed against the token so the relationship stays visible. */
+  --rt-doc-measure: calc(var(--rt-maxw-text) + 6ch);
+  overflow-x: clip;
+}
+
+/* --- Document head -------------------------------------------------------- */
+
+/* `.rt-head` is capped at 24ch for a section heading standing beside media.
+   A document head is the full width of its own column. */
+.rt-doc__head {
+  max-width: none;
+  align-items: flex-start;
+}
+
+.rt-doc__crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--rt-s-2);
+}
+
+.rt-doc__crumb-link {
+  transition: color var(--rt-t-med) var(--rt-ease-out);
+}
+
+.rt-doc__crumb-link:hover,
+.rt-doc__crumb-link:focus-visible {
+  color: var(--rt-ember);
+}
+
+.rt-doc__crumb-sep {
+  color: var(--rt-line-2);
+}
+
+/* `--rt-fs-h1` is sized for a hero that owns the viewport. Inside an 880px
+   document column the title has to come down one step, or it outweighs the
+   document it labels. */
+.rt-doc__title {
+  font-size: var(--rt-fs-h2);
+}
+
+.rt-doc__lede {
+  max-width: var(--rt-doc-measure);
+}
+
+/* --- Clauses --------------------------------------------------------------
+   `.rt-stack-ruled` supplies the hairline between clauses; this only sets the
+   air around it. The rules exist for scanning — a reader looking for the
+   return window should be able to find the clause boundaries at a glance. */
+
+.rt-doc__prose {
+  margin-top: var(--rt-block-lg);
+}
+
+.rt-doc__clause + .rt-doc__clause {
+  margin-top: var(--rt-block);
+  padding-top: var(--rt-block);
+}
+
+.rt-doc__clause-title {
+  margin-bottom: var(--rt-s-4);
+  max-width: var(--rt-doc-measure);
+}
+
+.rt-doc__para {
+  max-width: var(--rt-doc-measure);
+}
+
+/* --- Foot: the rest of the policy set ------------------------------------- */
+
+.rt-doc__foot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--rt-s-4);
+  margin-top: var(--rt-block-lg);
+  padding-top: var(--rt-block);
+  border-top: 1px solid var(--rt-line-2);
+}
+
+.rt-doc__foot-label {
+  color: var(--rt-text-3);
+}
+
+/* --- 404 ------------------------------------------------------------------
+   Centred in the document ground it already has, so no new height value. */
+
+.rt-doc--missing {
+  display: grid;
+  align-content: center;
+}
+
+.rt-doc__missing-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--rt-s-4);
+}
+
+.rt-doc__code {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--rt-s-2);
+  max-width: 100%;
+}
+
+.rt-doc__code-key {
+  color: var(--rt-ember);
+}
+
+.rt-doc__code-sep {
+  color: var(--rt-line-2);
+}
+
+/* The address that failed is data, not a label: it keeps its own casing and
+   has to survive a long unbroken path on a 320px screen. */
+.rt-doc__code-path {
+  text-transform: none;
+  letter-spacing: 0.06em;
+  overflow-wrap: anywhere;
+}
+
+.rt-doc__code-rule {
+  width: 100%;
+  max-width: var(--rt-doc-measure);
+}
+
+.rt-doc--missing .rt-doc__title {
+  margin-top: var(--rt-s-2);
+}
+
+.rt-doc__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rt-s-3);
+  margin-top: var(--rt-s-4);
+}
+
+@media (max-width: 560px) {
+  /* Two equal, full-width targets rather than one wide button and one stub. */
+  .rt-doc__actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .rt-doc__links {
+    width: 100%;
+  }
+}
+
+/* --- Clause lists ---------------------------------------------------------
+   The supplied Terms use a bulleted list in section 2. Marked with a hairline
+   rule rather than a glyph bullet, matching how the rest of the site separates
+   items — and indented so the list reads as subordinate to the clause. */
+
+.rt-doc__list {
+  margin: var(--rt-s-4) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--rt-s-3);
+}
+
+.rt-doc__list-item {
+  position: relative;
+  padding-left: var(--rt-s-5);
+}
+
+.rt-doc__list-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+  width: 14px;
+  height: 1px;
+  background: var(--rt-line-2);
+}
+
+.rt-doc__list + .rt-doc__para {
+  margin-top: var(--rt-s-4);
+}

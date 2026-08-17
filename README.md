@@ -272,3 +272,62 @@ test claims.
 
 © Karoo Moto. All rights reserved. This is a private, proprietary project — not
 licensed for redistribution.
+
+---
+
+## Going live
+
+**[docs/GOING-LIVE.md](docs/GOING-LIVE.md)** — everything needed to start
+selling: creating and publishing the Shopify product, Storefront API access,
+connecting the site, payments/shipping/tax, and hosting on a GoDaddy domain.
+
+## Architecture (current)
+
+Three pages, one flow:
+
+```
+Rally Tower landing (/)  →  Product (/product)  →  Cart (/cart)  →  Shopify checkout
+```
+
+- `/` — the cinematic Rally Tower landing page. Sells; does not transact.
+  Every CTA leads to `/product`.
+- `/product` — product card, image gallery, dependent bike-compatibility
+  selector (Brand → Model → Year → Variant), Add to Cart, Go to Cart.
+- `/cart` — line items with the selected motorcycle, quantities, subtotal,
+  and the hand-off to Shopify's hosted checkout.
+- `/policies/:doc` — the legal text the guarantee and warranty link to.
+
+Chrome (`RallyNav`, `SiteFooter`) and the configurator state
+(`TowerConfigProvider`) are app-level, so the motorcycle chosen on the product
+page is the same selection the cart and the landing CTAs read.
+
+### Design system
+
+Everything visual comes from `src/styles/rally/` — `tokens.css` (the only place
+colours, type scale, spacing, easing and durations are defined) and `base.css`
+(the shared primitives: buttons, cards, eyebrows, rules, chips, scrims, reveals).
+`docs/rally-tower-brief.md` is the contract every contributor builds against.
+
+### Commerce
+
+Shopify is the backend: catalog, pricing, cart, checkout, payment, shipping,
+taxes and orders. `src/lib/shopify.ts` wraps the Storefront API; the selected
+motorcycle travels as **cart line attributes** so it appears on the order in the
+Shopify admin.
+
+Copy `.env.example` to `.env.local` and fill in the store domain, Storefront API
+token and the Rally Tower variant GID. **Without them the site still runs** —
+the cart falls back to local state and the checkout button says the store is not
+connected rather than pretending otherwise.
+
+### Development
+
+```bash
+npm install
+npm run dev        # http://localhost:5173/
+npm run lint       # tsc --noEmit
+npm run build
+
+node scripts/shoot.mjs --sections     # screenshot 7 viewports, report overflow
+python scripts/check_rally.py         # static QA on tokens, classes, weights
+```

@@ -1,0 +1,109 @@
+/* ==========================================================================
+   Our story — the teaser.
+
+   A single left-aligned editorial column on the lifted panel, between the bone
+   Trust block and the ink disclosure. Nothing here is a component: the whole
+   section is four type sizes, one hairline and the section rhythm. The only
+   thing that changes across breakpoints is the fluid scale already in the
+   tokens, which is why it needs so few queries.
+   ========================================================================== */
+
+.rt-teaser__inner {
+  display: flex;
+  flex-direction: column;
+  /* Stretch, not flex-start: an `align-items: flex-start` column would shrink
+     the hairline and the reveal masks to their content and the rule would
+     vanish. Widths are held by the max-widths below instead. */
+  align-items: stretch;
+}
+
+/* --- Prose --------------------------------------------------------------- */
+
+.rt-teaser__prose {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-s-4);
+  margin-top: var(--rt-block);
+  max-width: var(--rt-maxw-text);
+}
+
+.rt-teaser__para {
+  /* .rt-lede caps at 62ch; the column is already narrower than that, so the
+     paragraph inherits the column measure and stays a comfortable ~55ch. */
+  max-width: none;
+}
+
+/* The second half of the mission sentence. Inter 600 against --rt-text lifts
+   it out of the --rt-text-2 lede without breaking the sentence in two. */
+.rt-teaser__emphasis {
+  font-weight: 600;
+  color: var(--rt-text);
+}
+
+/* --- The two beats -------------------------------------------------------
+   The prose states the facts; these two lines are what the section is for. A
+   block-lg gap (bigger than --rt-block, smaller than a section boundary) is
+   what gives them room, and the hairline turns that gap into a stage rather
+   than an accident. */
+
+.rt-teaser__beat {
+  margin-top: var(--rt-block-lg);
+}
+
+.rt-teaser__rule {
+  max-width: var(--rt-maxw-text);
+}
+
+/* The origin line. Body font at heading scale, weight 400 — it is the page
+   speaking, not a heading, so it must not compete with the sign-off below it. */
+.rt-teaser__origin {
+  margin: var(--rt-s-6) 0 0;
+  max-width: 32ch;
+  font-family: var(--rt-body);
+  font-weight: 400;
+  font-size: var(--rt-fs-h3);
+  line-height: 1.34;
+  letter-spacing: -0.012em;
+  color: var(--rt-text);
+  text-wrap: pretty;
+}
+
+/* --- Sign-off ------------------------------------------------------------ */
+
+.rt-teaser__statement-mask {
+  margin-top: var(--rt-block);
+}
+
+/* Held to a short measure so the line always breaks into two — one line of
+   condensed display type across the full column reads as a banner, two lines
+   read as a statement. */
+.rt-teaser__statement {
+  max-width: 16ch;
+  line-height: 0.94;
+}
+
+.rt-teaser__actions {
+  margin-top: var(--rt-s-6);
+}
+
+@media (max-width: 768px) {
+  .rt-teaser__origin {
+    max-width: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .rt-teaser__statement {
+    max-width: none;
+  }
+}
+
+/* The drawn hairline is the section's only decorative motion. base.css
+   neutralises the reveals, but `.rt-rule--draw` rests at scaleX(0) until its
+   wrapper is observed — pin it open so a reduced-motion reader gets the
+   complete composition regardless. */
+@media (prefers-reduced-motion: reduce) {
+  .rt-teaser__rule {
+    transform: none !important;
+  }
+}
